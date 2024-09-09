@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
 
-from system import System
+from igs import IGS
 
-System()
+IGS()
