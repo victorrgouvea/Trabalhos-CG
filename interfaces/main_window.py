@@ -27,7 +27,7 @@ class MainWindow(Gtk.Window):
 
         #Title
         self.title_label = Gtk.Label()
-        self.title_label.set_markup("<b>Objetos</b>")
+        self.title_label.set_markup("<b>Objects</b>")
         self.LeftBox.add(self.title_label)
 
         ## <TODO> move those below to the system.py, where we will integrate different parts of the system
@@ -38,7 +38,7 @@ class MainWindow(Gtk.Window):
         
         #Display File Interface
         self.displayFileInterface = DisplayFileInterface()
-        self.button = Button(self.displayFileInterface.add_row)
+        self.button = Button(self)
         self.LeftBox.add(self.displayFileInterface)
         self.LeftBox.add(self.button)
 
