@@ -2,28 +2,15 @@ from abc import ABC, abstractmethod
 
 class GenericObject(ABC):
 
-    def __init__(self, name, type, coordinates, color):
-        self.__name = name
-        self.__type = type
-        self.__coordinates = coordinates
-        self.__color = color
-
-    @property
-    def get_coordinates(self):
-        return self.__coordinates
-    
-    @property
-    def get_color(self):
-        return self.__color
-
-    @property
-    def get_name(self):
-        return self.__name
-    
-    @property
-    def get_type(self):
-        return self.__type
+    def __init__(self, name, type, coordinates, color = (0, 0, 0)):
+        self.name = name
+        self.type = type
+        self.coordinates = []
+        for x in coordinates:
+            self.coordinates.append(x)
+        self.coordinates = coordinates
+        self.color = color
     
     @abstractmethod
-    def draw(self):
+    def draw(self, context, viewport_functionf):
         pass

@@ -4,11 +4,11 @@ from objects.wireframe import Wireframe
 
 
 class DisplayFile:
-    def __init__(self):
+    def __init__(self, view_port):
         self.objects = []
+        self.view_port = view_port
 
-    def add_object(self, name, type, coords):
-        color = (0, 0, 0)
+    def add_object(self, name, type, coords, color):
         if type == 'line':
             object = Line(name, coords, color)
         elif type == 'point':
@@ -18,7 +18,8 @@ class DisplayFile:
 
         self.objects.append(object)
 
-    def update_draw(self, context):
-        # for object in self.objects:
-        #     object.draw(context, )
-        pass
+    def draw(self, context):
+        # We pass the function as an arg in case we want to make a switch case later
+        for objects in self.objects:
+             objects.draw(context, self.view_port.transform)
+        
