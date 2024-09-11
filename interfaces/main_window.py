@@ -2,6 +2,7 @@ from gi.repository import Gtk
 from interfaces.button import Button
 from interfaces.drawning_area import DrawingArea
 from interfaces.display_file_interface import DisplayFileInterface
+from interfaces.control_panel import ControlPanel
 from system.view_port import ViewPort
 from system.window import Window
 from system.display_file import DisplayFile
@@ -14,17 +15,17 @@ class MainWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="Main Window")
 
-        #Main Box
+        # Main Box
         self.set_default_size(1280, 1024) 
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         self.connect("destroy", Gtk.main_quit)
         self.add(self.main_box)
 
-        #Left Box
+        # Left Box
         self.left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.main_box.pack_start(self.left_box, True, True, 0)
 
-        #Right Box
+        # Right Box
         self.right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.main_box.pack_start(self.right_box, True, True, 0)
 
@@ -35,23 +36,27 @@ class MainWindow(Gtk.Window):
 
         ## <TODO> move those below to the system.py, where we will integrate different parts of the system
         
-        #window 
+        # window 
         self.window = Window(1280, 1024)
 
-        #view port
+        # view port
         self.viewPort = ViewPort(view_size, view_size, self.window)
 
-        #Display File Interface
+        # Display File Interface
         self.display_file = DisplayFile(self.viewPort)
         self.display_file_interface = DisplayFileInterface()
         self.button = Button(self)
         self.left_box.add(self.display_file_interface)
         self.left_box.add(self.button)
 
-         #Drawing Area
-        self.viewPort = DrawingArea(view_size, self.display_file)
-        self.right_box.add(self.viewPort.main_box)
-        self.right_box.add(self.viewPort.drawing_area)
+        # Control panel
+        self.control_panel = ControlPanel(self)
+        self.left_box.add(self.control_panel)
+
+        # Drawing Area
+        self.view_port = DrawingArea(view_size, self.display_file)
+        self.right_box.add(self.view_port.main_box)
+        self.right_box.add(self.view_port.drawing_area)
 
 
 

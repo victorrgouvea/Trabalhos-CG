@@ -7,9 +7,8 @@ class ObjectDialog(Gtk.Dialog):
         Gtk.Dialog.__init__(self, title="Add Object", transient_for=parent, flags=0)
         self.main_window = parent
         self.set_default_size(200, 200)
-        self.selected_type = None
+        self.selected_type = "Point"
         self.names = []
-
         # Caixa de conteúdo
         box = self.get_content_area()
 
@@ -86,8 +85,8 @@ class ObjectDialog(Gtk.Dialog):
             #     return self.show_error_dialog("Invalid input format for coordinates")
 
             self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
-            
             # Add object to the display interface
             self.main_window.display_file_interface.add_row(f"{self.selected_type}({self.name_entry.get_text()})")
 
             self.names.append(self.name_entry.get_text())
+            self.main_window.view_port.force_redraw()

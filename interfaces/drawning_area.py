@@ -5,12 +5,11 @@ class DrawingArea():
     def __init__(self, view_size, display_file):
         # Main  Box
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        self.main_box.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse("black"))
+        # self.main_box.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse("black"))
         #self.main_box.set_size_request(view_size + 20, view_size + 20)
         # Label
-        self.label = Gtk.Label(label="ViewPort")
-        self.label.modify_font(Pango.FontDescription("Sans 10"))
-        self.label.modify_fg(Gtk.StateFlags.NORMAL, Gdk.color_parse("white"))
+        self.label = Gtk.Label()
+        self.label.set_markup("<b>View Port</b>")
         self.main_box.pack_start(self.label, True, True, 0)
         self.main_box.set_margin_start(20)
         self.main_box.set_margin_end(20)
