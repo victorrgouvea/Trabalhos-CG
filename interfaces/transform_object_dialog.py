@@ -6,7 +6,9 @@ class TransformObjectDialog(Gtk.Dialog):
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, title="Transform Object", transient_for=parent, flags=0)
         
-        self.parent = parent
+        self.main_window = parent
+        self.pending_transformations = []
+        self.selected_object = self.main_window.display_file_interface.selected_item['instance']
         self.set_default_size(500, 300)
         
         main_box = self.get_content_area()
@@ -69,11 +71,9 @@ class TransformObjectDialog(Gtk.Dialog):
         self.show_all()
 
     def on_option_selected(self, button):
-        # Clear the dynamic area before adding new inputs
         for child in self.dynamic_area.get_children():
             self.dynamic_area.remove(child)
 
-        # Add specific input fields based on the selected option
         if self.trans_button.get_active():
             self.show_translation_inputs()
         elif self.scale_button.get_active():
@@ -81,7 +81,6 @@ class TransformObjectDialog(Gtk.Dialog):
         elif self.rotate_button.get_active():
             self.show_rotation_inputs()
 
-        # Update the interface to display new widgets
         self.dynamic_area.show_all()
 
     # Inputs for the "Translation" option
@@ -105,7 +104,6 @@ class TransformObjectDialog(Gtk.Dialog):
         self.entry_y = Gtk.Entry()
         self.entry_y.set_placeholder_text("Y")
 
-        # Add to the dynamic layout
         self.dynamic_area.pack_start(label, False, False, 0)
         self.dynamic_area.pack_start(self.entry_x, False, False, 0)
         self.dynamic_area.pack_start(self.entry_y, False, False, 0)
@@ -124,7 +122,6 @@ class TransformObjectDialog(Gtk.Dialog):
         # Connect the arbitrary point button to display X and Y fields
         self.arbitrary_point_button.connect("toggled", self.on_arbitrary_point_selected)
 
-        # Add to the dynamic layout
         self.dynamic_area.pack_start(label, False, False, 0)
         self.dynamic_area.pack_start(self.center_world_button, False, False, 0)
         self.dynamic_area.pack_start(self.center_object_button, False, False, 0)
@@ -133,12 +130,10 @@ class TransformObjectDialog(Gtk.Dialog):
 
     # Show X and Y fields for the arbitrary point
     def on_arbitrary_point_selected(self, button):
-        # Remove any previous entries for the arbitrary point
         for child in self.dynamic_area.get_children():
             if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X (arbitrary)" or child.get_placeholder_text() == "Y (arbitrary)"):
                 self.dynamic_area.remove(child)
 
-        # If the button is active, display X and Y fields
         if self.arbitrary_point_button.get_active():
             self.entry_x_arbitrary = Gtk.Entry()
             self.entry_x_arbitrary.set_placeholder_text("X (arbitrary)")
@@ -151,30 +146,39 @@ class TransformObjectDialog(Gtk.Dialog):
         self.dynamic_area.show_all()
 
     # Function to handle the "Add" button click
-    # Just seting the transformation string for now
     def on_add_button_clicked(self, widget):
         if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
+            self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
             transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
+        
         elif self.scale_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
+            self.pending_transformations.append(("S", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
             transformation = f"Scaling: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
+        
         elif self.rotate_button.get_active() and self.validate_angle(self.angle_entry.get_text()):
+            
             if self.center_world_button.get_active():
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "world"))
                 rotation_type = "Around the world center"
+            
             elif self.center_object_button.get_active():
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "object"))
                 rotation_type = "Around the object center"
+            
             elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text()):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text())]))
                 rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}"
+            
             transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"
 
         self.add_transformation(transformation)
 
-    # chamar aqui alguma função que vai aplicar as transformações
+
     def on_ok_button_clicked(self, widget):
-        pass
+        self.selected_object.transform(self.pending_transformations)
+        self.main_window.view_port.force_redraw()
 
     def add_transformation(self, transformation):
-        # Além disso adicionar a alguma estrutura que vai guardar as transformações
-        # para serem transformadas em matrizes e aplicadas posteriormente
         row = Gtk.ListBoxRow()
         label = Gtk.Label(label=transformation)
         label.set_xalign(0)
@@ -216,5 +220,3 @@ class TransformObjectDialog(Gtk.Dialog):
             dialog.destroy()
             
             return False
-        
-# (0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0)

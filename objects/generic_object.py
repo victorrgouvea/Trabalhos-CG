@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-
+import math
 
 class GenericObject(ABC):
 
@@ -10,7 +10,6 @@ class GenericObject(ABC):
         self.coordinates = []
         for x in coordinates:
             self.coordinates.append([x[0], x[1], 1])
-        self.coordinates = coordinates
         self.color = color
         self.center = self.get_center()
 
@@ -26,15 +25,18 @@ class GenericObject(ABC):
             total_x += x[0]
             total_y += x[1]
 
-        return (total_x / len(self.coordinates), total_y / len(self.coordinates))
+        self.center = [total_x / len(self.coordinates), total_y / len(self.coordinates)]
+
+        return self.center
 
     def create_translation_matrix(self, dx, dy):
-        return np.matrix([[1, 0, dx], [0, 1, dy], [0, 0, 1]])
+        return np.matrix([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
 
     def create_scale_matrix(self, sx, sy):
         return np.matrix([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
 
     def create_rotation_matrix(self, angle):
+        angle = np.deg2rad(angle)
         return np.matrix([[np.cos(angle), -np.sin(angle), 0], [np.sin(angle), np.cos(angle), 0], [0, 0, 1]])
 
     def translate(self, dx, dy):
@@ -42,18 +44,19 @@ class GenericObject(ABC):
 
     def scale(self, sx, sy):
         scale_matrix = self.create_scale_matrix(sx, sy)
-        translation_matrix_origin = self.create_translation_matrix(-self.center[0], -self.center[1])
-        translation_matrix_return = self.create_translation_matrix(self.center[0], self.center[1])
-        scale_matrix = np.dot(translation_matrix_origin, scale_matrix)
-        scale_matrix = np.dot(scale_matrix, translation_matrix_return)
+        center = self.get_center()
+        translation_matrix_origin = self.create_translation_matrix(-center[0], -center[1])
+        translation_matrix_return = self.create_translation_matrix(center[0], center[1])
+        scale_matrix = np.matmul(translation_matrix_origin, scale_matrix)
+        scale_matrix = np.matmul(scale_matrix, translation_matrix_return)
         return scale_matrix
 
     def rotate(self, angle, center):
         rotation_matrix = self.create_rotation_matrix(angle)
         translation_matrix_origin = self.create_translation_matrix(-center[0], -center[1])
         translation_matrix_return = self.create_translation_matrix(center[0], center[1])
-        rotation_matrix = np.dot(translation_matrix_origin, rotation_matrix)
-        rotation_matrix = np.dot(rotation_matrix, translation_matrix_return)
+        rotation_matrix = np.matmul(translation_matrix_origin, rotation_matrix)
+        rotation_matrix = np.matmul(rotation_matrix, translation_matrix_return)
         return rotation_matrix
 
     def get_transformation_matrix(self, transformation):
@@ -62,16 +65,23 @@ class GenericObject(ABC):
         elif transformation[0] == "S":
             return self.scale(transformation[1], transformation[2])
         elif transformation[0] == "R":
-            return self.rotate(transformation[1])
+            if transformation[2] == "world":
+                center = [0, 0]
+            elif transformation[2] == "object":
+                center = self.get_center()
+            elif transformation[2] == "arbitrary":
+                center = transformation[3]
+            return self.rotate(transformation[1], center)
+
 
     def transform(self, transformations):
         transformation_matrix = self.get_transformation_matrix(transformations[0])
-
         for i in range(1, len(transformations)):
-            transformation_matrix = np.dot(transformation_matrix, self.get_transformation_matrix(transformations[i]))
+            transformation_matrix = np.matmul(transformation_matrix, self.get_transformation_matrix(transformations[i]))
 
         for x in self.coordinates:
             point = np.matrix(x)
-            new_point = np.dot(point, transformation_matrix)
-            x[0] = new_point.item(0)
-            x[1] = new_point.item(1)
+            new_point = np.matmul(point, transformation_matrix)
+            x[0] = round(new_point.item(0), 2)
+            x[1] = round(new_point.item(1), 2)
+

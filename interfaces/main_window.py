@@ -16,7 +16,7 @@ class MainWindow(Gtk.Window):
         super().__init__(title="Main Window")
 
         # Main Box
-        self.set_default_size(1280, 1024) 
+        self.set_default_size(1280, 1280) 
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
         self.connect("destroy", Gtk.main_quit)
         self.add(self.main_box)
@@ -37,7 +37,7 @@ class MainWindow(Gtk.Window):
         ## <TODO> move those below to the system.py, where we will integrate different parts of the system
         
         # window 
-        self.window = Window(1280, 1024)
+        self.window = Window(1280, 1280)
 
         # view port
         self.viewPort = ViewPort(view_size, view_size, self.window)

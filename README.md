@@ -8,6 +8,7 @@ Project developed for the Computer Graphics class at UFSC
 
 - Running Linux
 - GTK 3 installed
+- Numpy Python library installed
 
 ## How to run
 

@@ -9,25 +9,21 @@ class NewObjectDialog(Gtk.Dialog):
         self.set_default_size(200, 200)
         self.selected_type = "Point"
         self.names = []
-        # Caixa de conteúdo
+
         box = self.get_content_area()
 
-        # Campo de texto para nome
-        self.name_label = Gtk.Label(label="Nome")
+        self.name_label = Gtk.Label(label="Name")
         self.name_entry = Gtk.Entry()
 
-        # Adicionando o campo de nome na área de conteúdo
         box.add(self.name_label)
         box.add(self.name_entry)
 
-        # Criar um grupo de Radio Buttons para selecionar o tipo de objeto
         radio_box = Gtk.Box(spacing=6)
 
         point_button = Gtk.RadioButton.new_with_label_from_widget(None, "Point")
         line_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Line")
         wireframe_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Wireframe")
 
-        # Conectar os botões ao método que armazena o valor
         point_button.connect("toggled", self.on_button_toggled, "Point")
         line_button.connect("toggled", self.on_button_toggled, "Line")
         wireframe_button.connect("toggled", self.on_button_toggled, "Wireframe")
@@ -40,10 +36,15 @@ class NewObjectDialog(Gtk.Dialog):
         box.add(radio_box)
 
         # Entry for coordinates
-        self.coordinates_label = Gtk.Label(label="Coordenadas (Ex: (x1, y1), (x2, y2)...)")
+        self.coordinates_label = Gtk.Label(label="Coordinates (Ex: (x1, y1), (x2, y2)...)")
         self.coordinates_entry = Gtk.Entry()
         box.add(self.coordinates_label)
         box.add(self.coordinates_entry)
+
+        self.color_button = Gtk.ColorButton()
+        self.color_button.set_title("Color")
+        box.add(Gtk.Label(label="Color:"))
+        box.add(self.color_button)
 
         # OK and cancel buttons
         ok_button = self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
@@ -77,8 +78,8 @@ class NewObjectDialog(Gtk.Dialog):
         if (self.name_entry.get_text() not in [obj['name'] for obj in self.main_window.display_file_interface.objects.values()]
             and self.selected_type is not None):
             
-            # Add object to the display file object
-            color = (0, 0, 0)
+            rgba = self.color_button.get_rgba()
+            color = (rgba.red, rgba.green, rgba.blue) 
 
             try:
                 input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
@@ -89,7 +90,7 @@ class NewObjectDialog(Gtk.Dialog):
                 return self.show_error_dialog("Invalid input format for coordinates")
 
             created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
-            # Add object to the display interface
+
             self.main_window.display_file_interface.add_row(self.name_entry.get_text(), self.selected_type, created_object)
 
             self.main_window.view_port.force_redraw()
