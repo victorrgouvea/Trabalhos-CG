@@ -17,6 +17,8 @@ class DisplayFile:
             object = Wireframe(name, coords, color)
 
         self.objects.append(object)
+        
+        return object
 
     def draw(self, context):
         # We pass the function as an arg in case we want to make a switch case later

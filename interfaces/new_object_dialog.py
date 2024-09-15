@@ -1,7 +1,7 @@
 from gi.repository import Gtk
 
 
-class ObjectDialog(Gtk.Dialog):
+class NewObjectDialog(Gtk.Dialog):
 
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, title="Add Object", transient_for=parent, flags=0)
@@ -63,30 +63,36 @@ class ObjectDialog(Gtk.Dialog):
             flags=0,
             message_type=Gtk.MessageType.ERROR,
             buttons=Gtk.ButtonsType.OK,
-            text="Erro na entrada de coordenadas",
+            text="Input value error",
         )
         dialog.format_secondary_text(message)
         dialog.run()
         dialog.destroy()
 
     def on_ok_clicked(self, widget):
+        
+        print(self.main_window.display_file_interface.objects.keys())
+        print(self.name_entry.get_text())
 
-        if self.name_entry.get_text() not in self.names and self.selected_type is not None:
+        if (self.name_entry.get_text() not in [obj['name'] for obj in self.main_window.display_file_interface.objects.values()]
+            and self.selected_type is not None):
             
             # Add object to the display file object
             color = (0, 0, 0)
 
-            # try:
-            input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
-            coordinate_pairs = input_string.split(",")
-            coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1])) for i in range(0, len(coordinate_pairs), 2)]
-            # except Exception as e:
-            #     print(e)
-            #     return self.show_error_dialog("Invalid input format for coordinates")
+            try:
+                input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
+                coordinate_pairs = input_string.split(",")
+                coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1])) for i in range(0, len(coordinate_pairs), 2)]
+            except Exception as e:
+                print(e)
+                return self.show_error_dialog("Invalid input format for coordinates")
 
-            self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
+            created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
             # Add object to the display interface
-            self.main_window.display_file_interface.add_row(f"{self.selected_type}({self.name_entry.get_text()})")
+            self.main_window.display_file_interface.add_row(self.name_entry.get_text(), self.selected_type, created_object)
 
-            self.names.append(self.name_entry.get_text())
             self.main_window.view_port.force_redraw()
+            
+        else:
+            self.show_error_dialog("Duplicated name or type not selected")
