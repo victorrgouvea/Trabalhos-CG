@@ -40,7 +40,7 @@ class FileSystem():
           print(x)
 
     def save_file(self, path, objects):
-        with open(path + '.obj', 'w', encoding='utf-8') as file:
+        with open(path, 'w', encoding='utf-8') as file:
             for obj in objects:
                 file.write(f'o {obj["name"]}\n')
                 for point in obj['points']:

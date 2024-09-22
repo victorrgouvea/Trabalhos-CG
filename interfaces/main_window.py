@@ -1,5 +1,5 @@
 from gi.repository import Gtk
-from interfaces.buttons import NewObjectButton, TransformObjectButton
+from interfaces.buttons import NewObjectButton, TransformObjectButton, LoadFileButton, SaveFileButton
 from interfaces.drawning_area import DrawingArea
 from interfaces.display_file_interface import DisplayFileInterface
 from interfaces.control_panel import ControlPanel
@@ -47,9 +47,13 @@ class MainWindow(Gtk.Window):
         self.display_file_interface = DisplayFileInterface()
         self.new_object_dialog_button = NewObjectButton(self)
         self.transform_object_dialog_button = TransformObjectButton(self)
+        self.load_file_button = LoadFileButton(self)
+        self.save_file_button = SaveFileButton(self)
         self.left_box.add(self.display_file_interface)
         self.left_box.add(self.new_object_dialog_button)
         self.left_box.add(self.transform_object_dialog_button)
+        self.left_box.add(self.load_file_button)
+        self.left_box.add(self.save_file_button)
 
         # Control panel
         self.control_panel = ControlPanel(self)
