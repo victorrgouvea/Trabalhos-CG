@@ -37,7 +37,31 @@ class ControlPanel(Gtk.Box):
         # Adicionar o grid ao layout principal
         self.pack_start(align_grid, True, True, 0)
 
-        # Criando um grid para os botões de Zoom (+ e -)
+        self.rotation_label = Gtk.Label()
+        self.rotation_label.set_markup("<b>Rotação</b>")
+        self.pack_start(self.rotation_label, False, False, 0)
+
+        # Caixa para os botões de rotação e o campo de entrada
+        rotation_box = Gtk.Box(spacing=6)
+
+        self.rotate_left_button = Gtk.Button(label="⟲")
+        self.rotate_right_button = Gtk.Button(label="⟳")
+        self.angle_entry = Gtk.Entry()
+        self.angle_entry.set_placeholder_text("Ângulo")
+
+        self.rotate_left_button.connect("clicked", self.on_rotate_left_clicked)
+        self.rotate_right_button.connect("clicked", self.on_rotate_right_clicked)
+
+        # Adicionar os botões e a entrada ao layout de rotação
+        rotation_box.pack_start(self.angle_entry, True, True, 0)
+        rotation_box.pack_start(self.rotate_left_button, True, True, 0)
+        rotation_box.pack_start(self.rotate_right_button, True, True, 0)
+
+        align_grid = Gtk.Alignment.new(0.5, 0, 0, 0)
+        align_grid.add(rotation_box)
+
+        self.pack_start(align_grid, True, True, 0)
+
         zoom_box = Gtk.Box(spacing=6)
 
         self.zoom_label = Gtk.Label()
@@ -54,7 +78,6 @@ class ControlPanel(Gtk.Box):
         zoom_box.pack_start(self.zoom_in_button, True, True, 0)
         zoom_box.pack_start(self.zoom_out_button, True, True, 0)
 
-        # Adicionar os botões de zoom ao layout principal
         self.pack_start(zoom_box, True, True, 0)
 
     def on_up_clicked(self, _):
@@ -80,4 +103,27 @@ class ControlPanel(Gtk.Box):
     def on_zoom_in_clicked(self, _):
         self.main_window.window.change_zoom(10, -10)
         self.main_window.view_port.force_redraw()
+
+    def on_rotate_left_clicked(self, _):
+        # angle = self.get_angle()
+        # if angle is not None:
+        #     self.main_window.window.rotate(-angle)
+        #     self.main_window.view_port.force_redraw()
+        pass
+
+    def on_rotate_right_clicked(self, _):
+        # angle = self.get_angle()
+        # if angle is not None:
+        #     self.main_window.window.rotate(angle)
+        #     self.main_window.view_port.force_redraw()
+        pass
+
+    def get_angle(self):
+        try:
+            return float(self.angle_entry.get_text())
+        except:
+            dialog = Gtk.MessageDialog(self.main_window, 0, Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, "Invalid angle for rotation")
+            dialog.format_secondary_text("Choose a valid angle to rotate the world.")
+            dialog.run()
+            dialog.destroy()
         

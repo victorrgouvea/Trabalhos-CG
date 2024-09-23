@@ -55,6 +55,8 @@ class LoadFileButton(Gtk.Button):
             print(f'File selected: {filename}')
 
             # Chama a função para carregar o arquivo
+            file_system = FileSystem(self.window)
+            file_system.load_file(filename)
 
             if not filename.endswith('.obj'):
                 dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, "Invalid file")
