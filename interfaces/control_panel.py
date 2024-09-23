@@ -38,7 +38,7 @@ class ControlPanel(Gtk.Box):
         self.pack_start(align_grid, True, True, 0)
 
         self.rotation_label = Gtk.Label()
-        self.rotation_label.set_markup("<b>Rotação</b>")
+        self.rotation_label.set_markup("<b>Rotation</b>")
         self.pack_start(self.rotation_label, False, False, 0)
 
         # Caixa para os botões de rotação e o campo de entrada
@@ -47,7 +47,7 @@ class ControlPanel(Gtk.Box):
         self.rotate_left_button = Gtk.Button(label="⟲")
         self.rotate_right_button = Gtk.Button(label="⟳")
         self.angle_entry = Gtk.Entry()
-        self.angle_entry.set_placeholder_text("Ângulo")
+        self.angle_entry.set_placeholder_text("Angle")
 
         self.rotate_left_button.connect("clicked", self.on_rotate_left_clicked)
         self.rotate_right_button.connect("clicked", self.on_rotate_right_clicked)
@@ -105,18 +105,16 @@ class ControlPanel(Gtk.Box):
         self.main_window.view_port.force_redraw()
 
     def on_rotate_left_clicked(self, _):
-        # angle = self.get_angle()
+        angle = self.get_angle()
         # if angle is not None:
         #     self.main_window.window.rotate(-angle)
         #     self.main_window.view_port.force_redraw()
-        pass
 
     def on_rotate_right_clicked(self, _):
-        # angle = self.get_angle()
+        angle = self.get_angle()
         # if angle is not None:
         #     self.main_window.window.rotate(angle)
         #     self.main_window.view_port.force_redraw()
-        pass
 
     def get_angle(self):
         try:
