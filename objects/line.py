@@ -2,15 +2,15 @@ from objects.generic_object import GenericObject
 
 
 class Line(GenericObject):
-        
+
     def __init__(self, name, coordinates, color):
         super().__init__(name, 'line', coordinates, color)
-    
+
     def draw(self, context, viewport_function):
         context.set_source_rgb(self.color[0], self.color[1], self.color[2])
         context.set_line_width(2)
-        begining_translated_coords = viewport_function(self.coordinates[0][0], self.coordinates[0][1])
-        ending_translated_coords = viewport_function(self.coordinates[1][0], self.coordinates[1][1])
+        begining_translated_coords = viewport_function(self.normalized_coordinates[0][0], self.normalized_coordinates[0][1])
+        ending_translated_coords = viewport_function(self.normalized_coordinates[1][0], self.normalized_coordinates[1][1])
         context.move_to(begining_translated_coords[0], begining_translated_coords[1])
         context.line_to(ending_translated_coords[0], ending_translated_coords[1])
         context.stroke()
