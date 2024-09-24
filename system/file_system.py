@@ -1,3 +1,5 @@
+from pathlib import Path
+
 class FileSystem():
 
     def __init__(self, root):
@@ -62,13 +64,14 @@ class FileSystem():
             if len(data) > 0:
                 match data[0]:
                     case 'mtllib':
+                        path_obj = Path(path)
                         mtl_path = data[1]
-                        materials = self.load_mtl_file(mtl_path)
+                        materials = self.load_mtl_file(path_obj.parent / mtl_path)
                     case 'usemtl':
                         current_material = data[1]
                         color = materials.get(current_material, None)
                         if color is None:
-                            color = (1, 1, 1)
+                            color = (0, 0, 0)
                     case 'o':
                         name = data[1]
                     case 'v':
@@ -88,14 +91,20 @@ class FileSystem():
 
     def save_file(self, path, objects):
         materials = {}
+    
         with open(path, 'w', encoding='utf-8') as file:
+            mtl_path = path.replace('.obj', '.mtl')
+            file.write(f'mtllib {mtl_path.split("/")[-1]}\n')
+
             for obj in objects:
                 file.write(f'o {obj.name}\n')
+                file.write(f'usemtl {obj.name}\n')
                 for point in obj.coordinates:
                     file.write(f'v {point[0]} {point[1]}\n')
                 file.write('\n')
+                
                 materials[obj.name] = obj.color
-        mtl_path = path.replace('.obj', '.mtl')
+        
         self.save_mtl_file(mtl_path, materials)
 
     def save_mtl_file(self, path, materials):

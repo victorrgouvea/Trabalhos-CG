@@ -23,6 +23,7 @@ class Window:
         self.wymin += y
         self.wxmax += x
         self.wymax += y
+        self.update_center()
 
     def update_coordinates(self):
         self.coordinates = [[self.wxmin, self.wymin, 1], [self.wxmax, self.wxmin, 1], [self.wxmax, self.wymax, 1], [self.wxmin, self.wymax, 1]]
@@ -32,6 +33,7 @@ class Window:
         self.wymin += min
         self.wxmax += max
         self.wymax += max
+        self.update_scale()
 
     def update_center(self):
         self.update_sizes()
@@ -43,7 +45,7 @@ class Window:
 
     def update_scale(self):
         self.update_center()
-        return [2/self.sizex, 2/self.sizey]
+        self.scale = [2/self.sizex, 2/self.sizey]
 
     def rotate(self, angle):
         self.angle_offset += angle
