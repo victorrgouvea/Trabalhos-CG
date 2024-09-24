@@ -12,7 +12,7 @@ def create_rotation_matrix(angle):
     return np.matrix([[np.cos(angle), -np.sin(angle), 0], [np.sin(angle), np.cos(angle), 0], [0, 0, 1]])
 
 def create_normalized_matrix(center, angle, scale):
-    translation_matrix = create_translation_matrix(center[0], center[1])
+    translation_matrix = create_translation_matrix(-center[0], -center[1])
     rotation_matrix = create_rotation_matrix(-angle)
     scale_matrix = create_scale_matrix(scale[0], scale[1])
     normalized_matrix = np.matmul(translation_matrix, rotation_matrix)

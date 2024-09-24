@@ -3,6 +3,25 @@ class FileSystem():
     def __init__(self, root):
         self.root = root
 
+    def load_mtl_file(self, mtl_path):
+        materials = {}
+        current_material = None
+
+        try:
+            with open(mtl_path, 'r', encoding='utf-8') as file:
+                for line in file:
+                    line = line.strip()
+                    if line.startswith('newmtl'):
+                        current_material = line.split()[1]  # Nome do material
+                        materials[current_material] = None  # Inicializa com cor None
+                    elif line.startswith('Kd') and current_material:
+                        # Converte os valores de cor para float e cria uma tupla
+                        materials[current_material] = tuple(map(float, line.split()[1:]))
+        except FileNotFoundError:
+            print(f'Material file {mtl_path} not found')
+    
+        return materials
+
     def load_file(self, path):
         obj_file = ''
         try:
@@ -14,40 +33,42 @@ class FileSystem():
 
         objects = []
         name = ''
-        obj_type = None  # Evitar conflito com palavra reservada 'type'
+        obj_type = None
         color = None
         points = []
+        materials = {}  # Dicionário para armazenar materiais
+        current_material = None  # Material atualmente em uso
 
         for line in obj_file:
-            line = line.strip()  # Remove espaços em branco e quebras de linha
-            if len(line) == 0:
-                # Se encontrar uma linha vazia, salvar o objeto atual e resetar os valores
+            line = line.strip()
+
+            if len(line) == 0:  # Se encontrar uma linha vazia, finalize o objeto anterior
+                if len(points) == 1:
+                    obj_type = 'point'
+                elif len(points) == 2:
+                    obj_type = 'line'
+                else:
+                    obj_type = 'wireframe'
+
                 if name or points:
+                    print(name, obj_type, points, color)
                     objects.append({'name': name, 'type': obj_type, 'points': points, 'color': color})
                 name = ''
-                obj_type = None
-                color = None
                 points = []
                 continue
 
             data = line.split()
 
             if len(data) > 0:
-                # Se for um comentário
-                if data[0].startswith('#'):
-                    comment = line[1:].strip()  # Remove o '#' e qualquer espaço
-                    if obj_type is None and comment:  # Captura o tipo do objeto na primeira linha de comentário
-                        obj_type = comment
-                    elif comment.startswith('(') and comment.endswith(')'):
-                        try:
-                            color = tuple(map(float, comment.strip('()').split(',')))
-                        except ValueError:
-                            print(f"Erro ao converter a cor: {comment}")
-                            color = None
-                    continue  # Ignora comentários
-
-                # Usar `match` para processar tipos de dados como `o`, `v`
                 match data[0]:
+                    case 'mtllib':
+                        mtl_path = data[1]
+                        materials = self.load_mtl_file(mtl_path)
+                    case 'usemtl':
+                        current_material = data[1]
+                        color = materials.get(current_material, None)
+                        if color is None:
+                            color = (1, 1, 1)
                     case 'o':
                         name = data[1]
                     case 'v':
@@ -62,17 +83,24 @@ class FileSystem():
         for obj in objects:
             print(obj)
             created_object = self.root.display_file.add_object(obj['name'], obj['type'], obj['points'], obj['color'])
-
             self.root.display_file_interface.add_row(obj['name'], obj['type'], created_object)
-
             self.root.view_port.force_redraw()
 
     def save_file(self, path, objects):
+        materials = {}
         with open(path, 'w', encoding='utf-8') as file:
             for obj in objects:
-                file.write(f'# {obj.type}\n')
-                file.write(f'# {obj.color}\n')
                 file.write(f'o {obj.name}\n')
                 for point in obj.coordinates:
                     file.write(f'v {point[0]} {point[1]}\n')
+                file.write('\n')
+                materials[obj.name] = obj.color
+        mtl_path = path.replace('.obj', '.mtl')
+        self.save_mtl_file(mtl_path, materials)
+
+    def save_mtl_file(self, path, materials):
+        with open(path, 'w', encoding='utf-8') as file:
+            for material, color in materials.items():
+                file.write(f'newmtl {material}\n')
+                file.write(f'Kd {color[0]} {color[1]} {color[2]}\n')
                 file.write('\n')

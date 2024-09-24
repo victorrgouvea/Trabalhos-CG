@@ -10,6 +10,4 @@ class Point(GenericObject):
         context.set_source_rgb(self.color[0], self.color[1], self.color[2])
         context.arc(translated_coords[0], translated_coords[1], 2, 0, 2 * 3.14)
         context.fill()
-        print(translated_coords)
-        print(self.coordinates)
-        print(self.color)
+

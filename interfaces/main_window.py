@@ -4,7 +4,7 @@ from interfaces.drawning_area import DrawingArea
 from interfaces.display_file_interface import DisplayFileInterface
 from interfaces.control_panel import ControlPanel
 from system.view_port import ViewPort
-from system.window import Window
+from objects.window import Window
 from system.display_file import DisplayFile
 
 # <TODO> Create globals.py to store global variables

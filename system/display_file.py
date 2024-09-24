@@ -1,7 +1,7 @@
 from objects.line import Line
 from objects.point import Point
 from objects.wireframe import Wireframe
-from system.utils import normalize_matrix
+from system.utils import create_normalized_matrix
 
 class DisplayFile:
     def __init__(self, view_port):
@@ -23,7 +23,8 @@ class DisplayFile:
 
     def draw(self, context):
         # We pass the function as an arg in case we want to make a switch case later
-        norm_matrix = normalize_matrix(self.window.center, self.window.angle_offset, self.window.scale)
+        self.window.update_scale()
+        norm_matrix = create_normalized_matrix(self.window.center, self.window.angle_offset, self.window.scale)
         for objects in self.objects:
              objects.apply_normalization(norm_matrix)
              objects.draw(context, self.view_port.transform)

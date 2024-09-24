@@ -71,12 +71,13 @@ class GenericObject(ABC):
         for x in self.coordinates:
             point = np.matrix(x)
             new_point = np.matmul(point, transformation_matrix)
-            x[0] = round(new_point.item(0), 2)
-            x[1] = round(new_point.item(1), 2)
+            x[0] = new_point.item(0)
+            x[1] = new_point.item(1)
+        self.apply_normalization(self, transformation_matrix)
 
     def apply_normalization(self, normalization_matrix):
         self.normalized_coordinates = []
         for x in self.coordinates:
             point = np.matrix(x)
             new_point = np.matmul(point, normalization_matrix)
-            self.normalized_coordinates.append([round(new_point.item(0), 2), round(new_point.item(1), 2), 1])
+            self.normalized_coordinates.append([new_point.item(0), new_point.item(1), 1])
