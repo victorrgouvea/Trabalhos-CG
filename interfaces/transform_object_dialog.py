@@ -5,26 +5,26 @@ class TransformObjectDialog(Gtk.Dialog):
 
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, title="Transform Object", transient_for=parent, flags=0)
-        
+
         self.main_window = parent
         self.pending_transformations = []
         self.selected_object = self.main_window.display_file_interface.selected_item['instance']
         self.set_default_size(500, 300)
-        
+
         main_box = self.get_content_area()
         layout = Gtk.Box(spacing=10)
         main_box.pack_start(layout, True, True, 0)
 
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         layout.pack_start(left_box, True, True, 0)
-        
+
         self.left_title_label = Gtk.Label()
         self.left_title_label.set_markup("<b>Transformations</b>")
 
         self.trans_button = Gtk.RadioButton.new_with_label_from_widget(None, "Translation")
         self.scale_button = Gtk.RadioButton.new_with_label_from_widget(self.trans_button, "Scaling")
         self.rotate_button = Gtk.RadioButton.new_with_label_from_widget(self.trans_button, "Rotation")
-        
+
         self.trans_button.set_active(True)
 
         self.trans_button.connect("toggled", self.on_option_selected)
@@ -46,7 +46,7 @@ class TransformObjectDialog(Gtk.Dialog):
 
         right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         layout.pack_start(right_box, True, True, 0)
-        
+
         self.right_title_label = Gtk.Label()
         self.right_title_label.set_markup("<b>List to be applied</b>")
 
@@ -58,14 +58,14 @@ class TransformObjectDialog(Gtk.Dialog):
         # ListBox to store the transformations
         self.transformation_list = Gtk.ListBox()
         self.scrolled_window.add(self.transformation_list)
-        
+
         right_box.pack_start(self.right_title_label, False, False, 0)
         right_box.pack_start(self.scrolled_window, True, True, 0)
 
         ok_button = self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
         ok_button.connect("clicked", self.on_ok_button_clicked)  # Connect the OK button to a function
         self.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        
+
         self.on_option_selected(self.trans_button)
 
         self.show_all()
@@ -150,25 +150,25 @@ class TransformObjectDialog(Gtk.Dialog):
         if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
             self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
             transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
-        
+
         elif self.scale_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
             self.pending_transformations.append(("S", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
             transformation = f"Scaling: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
-        
+
         elif self.rotate_button.get_active() and self.validate_angle(self.angle_entry.get_text()):
-            
+
             if self.center_world_button.get_active():
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "world"))
                 rotation_type = "Around the world center"
-            
+
             elif self.center_object_button.get_active():
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "object"))
                 rotation_type = "Around the object center"
-            
+
             elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text()):
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text())]))
                 rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}"
-            
+
             transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"
 
         self.add_transformation(transformation)
@@ -176,6 +176,7 @@ class TransformObjectDialog(Gtk.Dialog):
 
     def on_ok_button_clicked(self, widget):
         self.selected_object.transform(self.pending_transformations)
+        self.selected_object.apply_normalization(self.main_window.window.get_normalized_matrix())
         self.main_window.view_port.force_redraw()
 
     def add_transformation(self, transformation):
@@ -185,7 +186,7 @@ class TransformObjectDialog(Gtk.Dialog):
         row.add(label)
         self.transformation_list.add(row)
         self.transformation_list.show_all()
-        
+
     def validate_coords(self, x, y):
         try:
             x = float(x)
@@ -201,9 +202,9 @@ class TransformObjectDialog(Gtk.Dialog):
             )
             dialog.run()
             dialog.destroy()
-            
+
             return False
-            
+
     def validate_angle(self, angle):
         try:
             angle = float(angle)
@@ -218,5 +219,5 @@ class TransformObjectDialog(Gtk.Dialog):
             )
             dialog.run()
             dialog.destroy()
-            
+
             return False

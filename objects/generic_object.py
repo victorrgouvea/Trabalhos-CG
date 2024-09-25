@@ -73,7 +73,6 @@ class GenericObject(ABC):
             new_point = np.matmul(point, transformation_matrix)
             x[0] = new_point.item(0)
             x[1] = new_point.item(1)
-        self.apply_normalization(self, transformation_matrix)
 
     def apply_normalization(self, normalization_matrix):
         self.normalized_coordinates = []

@@ -23,7 +23,7 @@ class DisplayFile:
 
     def draw(self, context):
         # We pass the function as an arg in case we want to make a switch case later
-        norm_matrix = create_normalized_matrix(self.window.center, self.window.angle_offset, self.window.scale)
+        norm_matrix = self.window.get_normalized_matrix()
         for objects in self.objects:
              objects.apply_normalization(norm_matrix)
              objects.draw(context, self.view_port.transform)

@@ -16,7 +16,7 @@ class Window:
         self.normalized_center = [0, 0]
         self.angle_offset = 0
         self.coordinates = [[self.wxmin, self.wymin, 1], [self.wxmax, self.wxmin, 1], [self.wxmax, self.wymax, 1], [self.wxmin, self.wymax, 1]]
-        self.normalized_coordinates = []
+        self.normalized_coordinates = [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]]
 
     def change_offset(self, x, y):
         self.wxmin += x
@@ -24,6 +24,9 @@ class Window:
         self.wxmax += x
         self.wymax += y
         self.update_center()
+
+    def get_normalized_matrix(self):
+        return create_normalized_matrix(self.center, self.angle_offset, self.scale)
 
     def update_coordinates(self):
         self.coordinates = [[self.wxmin, self.wymin, 1], [self.wxmax, self.wxmin, 1], [self.wxmax, self.wymax, 1], [self.wxmin, self.wymax, 1]]
@@ -33,6 +36,7 @@ class Window:
         self.wymin += min
         self.wxmax += max
         self.wymax += max
+        self.update_coordinates()
         self.update_scale()
 
     def update_center(self):
