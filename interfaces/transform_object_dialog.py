@@ -147,6 +147,7 @@ class TransformObjectDialog(Gtk.Dialog):
 
     # Function to handle the "Add" button click
     def on_add_button_clicked(self, widget):
+        transformation = None
         if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
             self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
             transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
@@ -171,7 +172,8 @@ class TransformObjectDialog(Gtk.Dialog):
 
             transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"
 
-        self.add_transformation(transformation)
+        if transformation:
+            self.add_transformation(transformation)
 
 
     def on_ok_button_clicked(self, widget):

@@ -106,15 +106,15 @@ class ControlPanel(Gtk.Box):
 
     def on_rotate_left_clicked(self, _):
         angle = self.get_angle()
-        # if angle is not None:
-        #     self.main_window.window.rotate(-angle)
-        #     self.main_window.view_port.force_redraw()
+        if angle is not None:
+            self.main_window.window.rotate(-angle)
+            self.main_window.view_port.force_redraw()
 
     def on_rotate_right_clicked(self, _):
         angle = self.get_angle()
-        # if angle is not None:
-        #     self.main_window.window.rotate(angle)
-        #     self.main_window.view_port.force_redraw()
+        if angle is not None:
+            self.main_window.window.rotate(angle)
+            self.main_window.view_port.force_redraw()
 
     def get_angle(self):
         try:

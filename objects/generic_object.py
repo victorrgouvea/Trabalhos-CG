@@ -30,7 +30,7 @@ class GenericObject(ABC):
         return self.center
 
     def translate(self, dx, dy):
-        return self.create_translation_matrix(dx, dy)
+        return create_translation_matrix(dx, dy)
 
     def scale(self, sx, sy):
         scale_matrix = create_scale_matrix(sx, sy)
