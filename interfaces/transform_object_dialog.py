@@ -149,7 +149,7 @@ class TransformObjectDialog(Gtk.Dialog):
     def on_add_button_clicked(self, widget):
         transformation = None
         if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
-            self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
+            self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text()), self.main_window.window.angle_offset))
             transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
 
         elif self.scale_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):

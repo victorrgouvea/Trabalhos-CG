@@ -29,8 +29,11 @@ class GenericObject(ABC):
 
         return self.center
 
-    def translate(self, dx, dy):
-        return create_translation_matrix(dx, dy)
+    def translate(self, dx, dy, angle = 0):
+        point = np.matrix([dx, dy, 1])
+        rot_mat = create_rotation_matrix(angle, [0, 0])
+        point = np.matmul(point, rot_mat)
+        return create_translation_matrix(point[0], point[1])
 
     def scale(self, sx, sy):
         scale_matrix = create_scale_matrix(sx, sy)
@@ -51,7 +54,7 @@ class GenericObject(ABC):
 
     def get_transformation_matrix(self, transformation):
         if transformation[0] == "T":
-            return self.translate(transformation[1], transformation[2])
+            return self.translate(transformation[1], transformation[2], transformation[3])
         elif transformation[0] == "S":
             return self.scale(transformation[1], transformation[2])
         elif transformation[0] == "R":
