@@ -97,11 +97,11 @@ class ControlPanel(Gtk.Box):
         self.main_window.view_port.force_redraw()
 
     def on_zoom_out_clicked(self, _):
-        self.main_window.window.change_zoom(-10, 10)
+        self.main_window.window.change_zoom(1.05, 1.05)
         self.main_window.view_port.force_redraw()
 
     def on_zoom_in_clicked(self, _):
-        self.main_window.window.change_zoom(10, -10)
+        self.main_window.window.change_zoom(0.95, 0.95)
         self.main_window.view_port.force_redraw()
 
     def on_rotate_left_clicked(self, _):
@@ -124,4 +124,3 @@ class ControlPanel(Gtk.Box):
             dialog.format_secondary_text("Choose a valid angle to rotate the world.")
             dialog.run()
             dialog.destroy()
-        
