@@ -116,6 +116,23 @@ class ControlPanel(Gtk.Box):
             self.main_window.window.rotate(angle)
             self.main_window.view_port.force_redraw()
 
+    def key_handler(self, key):
+        key = key.lower()
+
+        match key:
+            case "w":
+                self.on_up_clicked(None)
+            case "s":
+                self.on_down_clicked(None)
+            case "a":
+                self.on_left_clicked(None)
+            case "d":
+                self.on_right_clicked(None)
+            case "+":
+                self.on_zoom_in_clicked(None)
+            case "-":
+                self.on_zoom_out_clicked(None)
+
     def get_angle(self):
         try:
             return float(self.angle_entry.get_text())

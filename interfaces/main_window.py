@@ -63,3 +63,10 @@ class MainWindow(Gtk.Window):
         self.view_port = DrawingArea(view_size, self.display_file)
         self.right_box.add(self.view_port.main_box)
         self.right_box.add(self.view_port.drawing_area)
+
+        # Key manager
+        self.connect('key-press-event', self.on_key_press)
+
+
+    def on_key_press(self, _, event) -> None:
+        self.control_panel.key_handler(event.string)
