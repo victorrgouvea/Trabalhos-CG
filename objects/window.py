@@ -1,5 +1,5 @@
 import numpy as np
-from system.utils import create_normalized_matrix
+from system.utils import create_normalized_matrix, create_rotation_matrix, create_translation_matrix
 
 
 class Window:
@@ -19,15 +19,27 @@ class Window:
         self.normalized_coordinates = [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]]
 
     def change_offset(self, x, y):
-        self.wxmin += x
-        self.wymin += y
-        self.wxmax += x
-        self.wymax += y
+        point = np.matrix([x, y, 1])
+        rot_mat = create_rotation_matrix(self.angle_offset)
+        point = np.matmul(point, rot_mat)
+        translation_mat = create_translation_matrix(point.item(0), point.item(1))
+        for x in self.coordinates:
+            point = np.matrix(x)
+            new_point = np.matmul(point, translation_mat)
+            x[0] = new_point.item(0)
+            x[1] = new_point.item(1)
+        self.update_min_max()
         self.update_center()
 
     def get_normalized_matrix(self):
         return create_normalized_matrix(self.center, self.angle_offset, self.scale)
 
+    def update_min_max(self):
+        self.wxmin = self.coordinates[0][0]
+        self.wymin = self.coordinates[0][1]
+        self.wxmax = self.coordinates[2][0]
+        self.wymax = self.coordinates[2][1]
+    
     def update_coordinates(self):
         self.coordinates = [[self.wxmin, self.wymin, 1], [self.wxmax, self.wxmin, 1], [self.wxmax, self.wymax, 1], [self.wxmin, self.wymax, 1]]
 

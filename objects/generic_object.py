@@ -31,9 +31,10 @@ class GenericObject(ABC):
 
     def translate(self, dx, dy, angle = 0):
         point = np.matrix([dx, dy, 1])
-        rot_mat = create_rotation_matrix(angle, [0, 0])
+        rot_mat = create_rotation_matrix(angle)
         point = np.matmul(point, rot_mat)
-        return create_translation_matrix(point[0], point[1])
+        print(point)
+        return create_translation_matrix(point.item(0), point.item(1))
 
     def scale(self, sx, sy):
         scale_matrix = create_scale_matrix(sx, sy)
