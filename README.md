@@ -20,5 +20,5 @@ python3 main.py
 When adding a new object, use a pattern like this (it draws a square):
 
 ```
-(800.0, 800.0), (800.0, 500.0), (500.0, 500.0), (500.0, 800.0)
+(500.0, 500.0), (500.0, 200.0), (200.0, 200.0), (200.0, 500.0)
 ```

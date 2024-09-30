@@ -9,6 +9,7 @@ class NewObjectDialog(Gtk.Dialog):
         self.set_default_size(200, 200)
         self.selected_type = "Point"
         self.names = []
+        self.fill_wireframe = False  # Para verificar se o polígono será desenhado
 
         box = self.get_content_area()
 
@@ -35,6 +36,11 @@ class NewObjectDialog(Gtk.Dialog):
 
         box.add(radio_box)
 
+        self.draw_polygon_checkbox = Gtk.CheckButton(label="Fill Wireframe?")
+        self.draw_polygon_checkbox.connect("toggled", self.on_draw_polygon_toggled)
+        box.add(self.draw_polygon_checkbox)
+
+
         # Entry for coordinates
         self.coordinates_label = Gtk.Label(label="Coordinates (Ex: (x1, y1), (x2, y2)...)")
         self.coordinates_entry = Gtk.Entry()
@@ -54,9 +60,18 @@ class NewObjectDialog(Gtk.Dialog):
 
         self.show_all()
 
+        self.draw_polygon_checkbox.hide()
+
     def on_button_toggled(self, button, object_type):
-        print(object_type)
         self.selected_type = object_type
+
+        if object_type == "Wireframe":
+            self.draw_polygon_checkbox.show()
+        else:
+            self.draw_polygon_checkbox.hide()
+
+    def on_draw_polygon_toggled(self, button):
+        self.fill_wireframe = button.get_active()
 
     def show_error_dialog(self, message):
         dialog = Gtk.MessageDialog(
@@ -71,9 +86,6 @@ class NewObjectDialog(Gtk.Dialog):
         dialog.destroy()
 
     def on_ok_clicked(self, widget):
-        
-        print(self.main_window.display_file_interface.objects.keys())
-        print(self.name_entry.get_text())
 
         if (self.name_entry.get_text() not in [obj['name'] for obj in self.main_window.display_file_interface.objects.values()]
             and self.selected_type is not None):
@@ -89,7 +101,12 @@ class NewObjectDialog(Gtk.Dialog):
                 print(e)
                 return self.show_error_dialog("Invalid input format for coordinates")
 
-            created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
+            # Fill wireframe if selected
+            if self.selected_type == "Wireframe" and self.fill_wireframe:
+                print("Filling wireframe")
+                created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color, True)
+            else:
+                created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)
 
             self.main_window.display_file_interface.add_row(self.name_entry.get_text(), self.selected_type, created_object)
 

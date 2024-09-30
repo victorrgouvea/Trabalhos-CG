@@ -9,13 +9,13 @@ class DisplayFile:
         self.view_port = view_port
         self.window = view_port.window
 
-    def add_object(self, name, type, coords, color):
+    def add_object(self, name, type, coords, color, fill = False):
         if type == 'line':
             object = Line(name, coords, color)
         elif type == 'point':
             object = Point(name, coords, color)
         elif type == 'wireframe':
-            object = Wireframe(name, coords, color)
+            object = Wireframe(name, coords, color, fill)
 
         self.objects.append(object)
 

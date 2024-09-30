@@ -4,6 +4,7 @@ class ControlPanel(Gtk.Box):
     def __init__(self, main_window):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.main_window = main_window
+        self.clipping_method = "CS"
 
         self.panning_label = Gtk.Label()
         self.panning_label.set_markup("<b>Panning</b>")
@@ -80,6 +81,24 @@ class ControlPanel(Gtk.Box):
 
         self.pack_start(zoom_box, True, True, 0)
 
+        self.clip_label = Gtk.Label()
+        self.clip_label.set_markup("<b>Line Clipping</b>")
+        self.pack_start(self.clip_label, False, False, 0)
+
+        clip_box = Gtk.Box(spacing=6)
+
+        # Adicionar RadioButtons para a escolha de algoritmos de clipagem
+        self.cohen_sutherland_button = Gtk.RadioButton.new_with_label_from_widget(None, "Cohen-Sutherland")
+        self.liang_barsky_button = Gtk.RadioButton.new_with_label_from_widget(self.cohen_sutherland_button, "Liang-Barsky")
+
+        self.cohen_sutherland_button.connect("toggled", self.on_clipping_method_toggled, "CS")
+        self.liang_barsky_button.connect("toggled", self.on_clipping_method_toggled, "LB")
+
+        clip_box.pack_start(self.cohen_sutherland_button, True, True, 0)
+        clip_box.pack_start(self.liang_barsky_button, True, True, 0)
+
+        self.pack_start(clip_box, True, True, 0)
+
     def on_up_clicked(self, _):
         self.main_window.window.change_offset(0, 10)
         self.main_window.view_port.force_redraw()
@@ -115,6 +134,12 @@ class ControlPanel(Gtk.Box):
         if angle is not None:
             self.main_window.window.rotate(angle)
             self.main_window.view_port.force_redraw()
+
+    def on_clipping_method_toggled(self, button, method):
+        if button.get_active():
+            self.clipping_method = method
+            print(f"Selected Clipping Method: {self.clipping_method}")
+            # self.main_window.set_clipping_method(method)
 
     def key_handler(self, key):
         key = key.lower()
