@@ -19,6 +19,78 @@ def create_normalized_matrix(center, angle, scale):
     normalized_matrix = np.matmul(normalized_matrix, scale_matrix)
     return normalized_matrix
 
+def clip_polygon(object_):
+        '''
+        Faz o clipping de um objeto e o converte para a representação em linhas.
+
+        O algoritmo de clipping de polígonos é o Sutherland-Hodgeman.
+        '''
+
+        coords = object_.normalized_coords
+
+        clipped_lines = []
+
+        if object_.type == 'point' and len(coords) > 0:
+            if (-1 <= coords[0][0] <= 1) and \
+               (-1 <= coords[0][1] <= 1):
+                clipped_lines.append(object_.normalized_coordinates[0])
+        else:
+            clipped_lines = object_.normalized_coordinates
+            clipped_lines_temp = []
+
+            for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
+                for line in clipped_lines:
+                    comp_inside = None
+                    comp_a = None
+                    comp_b = None
+
+                    match inter:
+                        case 'LEFT':
+                            comp_inside = line[0][0] > -1 and \
+                                line[1][0] > -1
+                            comp_a = line[0][0] > -1
+                            comp_b = line[1][0] > -1
+                        case 'RIGHT':
+                            comp_inside = line[0][0] < 1 and \
+                                line[1][0] < 1
+                            comp_a = line[0][0] < 1
+                            comp_b = line[1][0] < 1
+                        case 'BOTTOM':
+                            comp_inside = line[0][1] > -1 and \
+                                line[1][1] > -1
+                            comp_a = line[0][1] > -1
+                            comp_b = line[1][1] > -1
+                        case 'TOP':
+                            comp_inside = line[0][1] < 1 and \
+                                line[1][1] < 1
+                            comp_a = line[0][1] < 1
+                            comp_b = line[1][1] < 1
+
+                    if comp_inside:
+                        clipped_lines_temp.append(line)
+                    elif comp_a:
+                        intersection = intersection(line, None, inter, False)
+                        clipped_lines_temp.append(intersection)
+                    elif comp_b:
+                        intersection = intersection(line, inter, None, False)
+                        clipped_lines_temp.append(intersection)
+
+                # Patch de linhas
+                if object_.fill:
+                    for i, _ in enumerate(clipped_lines_temp):
+                        if i < len(clipped_lines_temp) - 1:
+                            if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
+                                clipped_lines_temp.insert(i + 1,
+                                                          [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
+                        else:
+                            if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
+                                clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
+
+                clipped_lines = clipped_lines_temp.copy()
+                clipped_lines_temp.clear()
+
+        return clipped_lines
+
 def cohen_sutherland(line):
     clipped_line = []
     region_codes = []
@@ -114,20 +186,16 @@ def intersection(line, intersections):
     return new_line if len(new_line) == 2 else []
 
 
-def liang_barsky(window, line):
-    '''
-    Clipping de linha com o algoritmo de Liang-Barsky.
-    '''
-
-    p1 = -(line[1].x - line[0].x)
+def liang_barsky(line):
+    p1 = -(line[1][0] - line[0][0])
     p2 = -p1
-    p3 = -(line[1].y - line[0].y)
+    p3 = -(line[1][1] - line[0][1])
     p4 = -p3
 
-    q1 = line[0].x - window.normalized_origin.x
-    q2 = window.normalized_extension.x - line[0].x
-    q3 = line[0].y - window.normalized_origin.y
-    q4 = window.normalized_extension.y - line[0].y
+    q1 = line[0][0] - (-1)
+    q2 = 1 - line[0][0]
+    q3 = line[0][1] - (-1)
+    q4 = 1 - line[0][1]
 
     positives = [1]
     negatives = [0]
@@ -162,10 +230,7 @@ def liang_barsky(window, line):
     if max_negative > min_positive:
         return []
 
-    new_vector_a = [line[0].x + p2 * max_negative, line[0].y + p4 * max_negative]
-    new_vector_b = [line[0].x + p2 * min_positive, line[0].y + p4 * min_positive]
+    new_vector_a = [line[0][0] + p2 * max_negative, line[0][1] + p4 * max_negative]
+    new_vector_b = [line[0][0] + p2 * min_positive, line[0][1] + p4 * min_positive]
 
     return [new_vector_a, new_vector_b]
-
-# def get_intersection_point()
-
