@@ -179,7 +179,7 @@ class TransformObjectDialog(Gtk.Dialog):
     def on_ok_button_clicked(self, widget):
         self.selected_object.transform(self.pending_transformations)
         self.selected_object.apply_normalization(self.main_window.window.get_normalized_matrix())
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def add_transformation(self, transformation):
         row = Gtk.ListBoxRow()

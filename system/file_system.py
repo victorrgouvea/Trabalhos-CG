@@ -87,7 +87,7 @@ class FileSystem():
             print(obj)
             created_object = self.root.display_file.add_object(obj['name'], obj['type'], obj['points'], obj['color'])
             self.root.display_file_interface.add_row(obj['name'], obj['type'], created_object)
-            self.root.view_port.force_redraw()
+            self.root.drawing_area.force_redraw()
 
     def save_file(self, path, objects):
         materials = {}

@@ -110,7 +110,7 @@ class NewObjectDialog(Gtk.Dialog):
 
             self.main_window.display_file_interface.add_row(self.name_entry.get_text(), self.selected_type, created_object)
 
-            self.main_window.view_port.force_redraw()
+            self.main_window.drawing_area.force_redraw()
             
         else:
             self.show_error_dialog("Duplicated name or type not selected")

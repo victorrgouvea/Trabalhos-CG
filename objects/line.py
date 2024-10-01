@@ -9,8 +9,8 @@ class Line(GenericObject):
     def draw(self, context, viewport_function):
         context.set_source_rgb(self.color[0], self.color[1], self.color[2])
         context.set_line_width(2)
-        begining_translated_coords = viewport_function(self.normalized_coordinates[0][0], self.normalized_coordinates[0][1])
-        ending_translated_coords = viewport_function(self.normalized_coordinates[1][0], self.normalized_coordinates[1][1])
+        begining_translated_coords = viewport_function(self.clipped_coords[0][0], self.clipped_coords[0][1])
+        ending_translated_coords = viewport_function(self.clipped_coords[1][0], self.clipped_coords[1][1])
         context.move_to(begining_translated_coords[0], begining_translated_coords[1])
         context.line_to(ending_translated_coords[0], ending_translated_coords[1])
         context.stroke()

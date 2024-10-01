@@ -3,11 +3,13 @@ import numpy as np
 from system.utils import create_translation_matrix, create_scale_matrix, create_rotation_matrix
 class GenericObject(ABC):
 
-    def __init__(self, name, type, coordinates, color = (0, 0, 0)):
+    def __init__(self, name, type, coordinates, color = (0, 0, 0), fill = False):
         self.name = name
         self.type = type
         self.coordinates = []
         self.normalized_coordinates = []
+        self.clipped_coords = []
+        self.fill = fill
         for x in coordinates:
             self.coordinates.append([x[0], x[1], 1])
         self.color = color

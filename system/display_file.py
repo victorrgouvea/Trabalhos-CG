@@ -1,7 +1,7 @@
 from objects.line import Line
 from objects.point import Point
 from objects.wireframe import Wireframe
-from system.utils import create_normalized_matrix
+from system.utils import clip
 
 class DisplayFile:
     def __init__(self, view_port):
@@ -26,4 +26,6 @@ class DisplayFile:
         norm_matrix = self.window.get_normalized_matrix()
         for objects in self.objects:
              objects.apply_normalization(norm_matrix)
-             objects.draw(context, self.view_port.transform)
+             clip(objects)
+             if objects.clipped_coords:
+                objects.draw(context, self.view_port.transform)

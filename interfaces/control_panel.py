@@ -101,39 +101,39 @@ class ControlPanel(Gtk.Box):
 
     def on_up_clicked(self, _):
         self.main_window.window.change_offset(0, 10)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_down_clicked(self, _):
         self.main_window.window.change_offset(0, -10)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_left_clicked(self, _):
         self.main_window.window.change_offset(-10, 0)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_right_clicked(self, _):
         self.main_window.window.change_offset(10, 0)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_zoom_out_clicked(self, _):
         self.main_window.window.change_zoom(1.05, 1.05)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_zoom_in_clicked(self, _):
         self.main_window.window.change_zoom(0.95, 0.95)
-        self.main_window.view_port.force_redraw()
+        self.main_window.drawing_area.force_redraw()
 
     def on_rotate_left_clicked(self, _):
         angle = self.get_angle()
         if angle is not None:
             self.main_window.window.rotate(-angle)
-            self.main_window.view_port.force_redraw()
+            self.main_window.drawing_area.force_redraw()
 
     def on_rotate_right_clicked(self, _):
         angle = self.get_angle()
         if angle is not None:
             self.main_window.window.rotate(angle)
-            self.main_window.view_port.force_redraw()
+            self.main_window.drawing_area.force_redraw()
 
     def on_clipping_method_toggled(self, button, method):
         if button.get_active():

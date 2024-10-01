@@ -8,8 +8,8 @@ from objects.window import Window
 from system.display_file import DisplayFile
 
 # <TODO> Create globals.py to store global variables
-view_size = 852
-
+view_size = 640
+draw_size = 640
 class MainWindow(Gtk.Window):
 
     def __init__(self):
@@ -37,13 +37,13 @@ class MainWindow(Gtk.Window):
         ## <TODO> move those below to the system.py, where we will integrate different parts of the system
 
         # window
-        self.window = Window(1280, 1280)
+        self.window = Window(320, 320)
 
         # view port
-        self.viewPort = ViewPort(view_size, view_size, self.window)
+        self.view_port = ViewPort(view_size, view_size, self.window)
 
         # Display File Interface
-        self.display_file = DisplayFile(self.viewPort)
+        self.display_file = DisplayFile(self.view_port)
         self.display_file_interface = DisplayFileInterface()
         self.new_object_dialog_button = NewObjectButton(self)
         self.transform_object_dialog_button = TransformObjectButton(self)
@@ -60,9 +60,9 @@ class MainWindow(Gtk.Window):
         self.left_box.add(self.control_panel)
 
         # Drawing Area
-        self.view_port = DrawingArea(view_size, self.display_file)
-        self.right_box.add(self.view_port.main_box)
-        self.right_box.add(self.view_port.drawing_area)
+        self.drawing_area = DrawingArea(view_size, self.display_file)
+        self.right_box.add(self.drawing_area.main_box)
+        self.right_box.add(self.drawing_area.drawing_area)
 
         # Key manager
         self.connect('key-press-event', self.on_key_press)

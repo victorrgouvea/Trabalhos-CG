@@ -19,82 +19,87 @@ def create_normalized_matrix(center, angle, scale):
     normalized_matrix = np.matmul(normalized_matrix, scale_matrix)
     return normalized_matrix
 
-def clip_polygon(object_):
-        '''
-        Faz o clipping de um objeto e o converte para a representação em linhas.
+def clip_point(object_):
+    clipped_lines = []
+    coords = object_.normalized_coordinates
+    if (-1 <= coords[0][0] <= 1) and (-1 <= coords[0][1] <= 1):
+        clipped_lines.append(object_.normalized_coordinates[0])
+    return clipped_lines
 
-        O algoritmo de clipping de polígonos é o Sutherland-Hodgeman.
-        '''
-
-        coords = object_.normalized_coords
-
-        clipped_lines = []
-
-        if object_.type == 'point' and len(coords) > 0:
-            if (-1 <= coords[0][0] <= 1) and \
-               (-1 <= coords[0][1] <= 1):
-                clipped_lines.append(object_.normalized_coordinates[0])
+def clip(object_, algorithm = 'cohen-sutherland'):
+        object_.clipped_coords = []
+        if object_.type == 'wireframe':
+            object_.clipped_coords = sutherland_hodgeman(object_)
+        elif object_.type == 'point':
+            object_.clipped_coords = clip_point(object_)
         else:
-            clipped_lines = object_.normalized_coordinates
-            clipped_lines_temp = []
+            if algorithm == 'cohen-sutherland':
+                object_.clipped_coords = cohen_sutherland(object_)
+            else:
+                object_.clipped_coords = liang_barsky(object_)
+        print(object_.clipped_coords)
 
-            for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
-                for line in clipped_lines:
-                    comp_inside = None
-                    comp_a = None
-                    comp_b = None
+def sutherland_hodgeman(object_):
+        clipped_lines = []
+        original_coords = object_.normalized_coordinates
+        clipped_lines_temp = []
 
-                    match inter:
-                        case 'LEFT':
-                            comp_inside = line[0][0] > -1 and \
-                                line[1][0] > -1
-                            comp_a = line[0][0] > -1
-                            comp_b = line[1][0] > -1
-                        case 'RIGHT':
-                            comp_inside = line[0][0] < 1 and \
-                                line[1][0] < 1
-                            comp_a = line[0][0] < 1
-                            comp_b = line[1][0] < 1
-                        case 'BOTTOM':
-                            comp_inside = line[0][1] > -1 and \
-                                line[1][1] > -1
-                            comp_a = line[0][1] > -1
-                            comp_b = line[1][1] > -1
-                        case 'TOP':
-                            comp_inside = line[0][1] < 1 and \
-                                line[1][1] < 1
-                            comp_a = line[0][1] < 1
-                            comp_b = line[1][1] < 1
+        for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
+            for v in range(len(original_coords)):
+                line = [original_coords[v], original_coords[v + 1] if v < len(original_coords) - 1 else original_coords[0]]
+                comp_inside = None
+                comp_a = None
+                comp_b = None
+                print("teste", clipped_lines)
+                print("teste2", clipped_lines_temp)
+                match inter:
+                    case 'LEFT':
+                        comp_inside = line[0][0] > -1 and line[1][0] > -1
+                        comp_a = line[0][0] > -1
+                        comp_b = line[1][0] > -1
+                    case 'RIGHT':
+                        comp_inside = line[0][0] < 1 and line[1][0] < 1
+                        comp_a = line[0][0] < 1
+                        comp_b = line[1][0] < 1
+                    case 'BOTTOM':
+                        comp_inside = line[0][1] > -1 and line[1][1] > -1
+                        comp_a = line[0][1] > -1
+                        comp_b = line[1][1] > -1
+                    case 'TOP':
+                        comp_inside = line[0][1] < 1 and line[1][1] < 1
+                        comp_a = line[0][1] < 1
+                        comp_b = line[1][1] < 1
 
-                    if comp_inside:
-                        clipped_lines_temp.append(line)
-                    elif comp_a:
-                        intersection = intersection(line, None, inter, False)
-                        clipped_lines_temp.append(intersection)
-                    elif comp_b:
-                        intersection = intersection(line, inter, None, False)
-                        clipped_lines_temp.append(intersection)
+                if comp_inside:
+                    clipped_lines_temp.append(line)
+                elif comp_a:
+                    intersec = intersection(line, [inter])
+                    clipped_lines_temp.append(intersec)
+                elif comp_b:
+                    intersec = intersection(line, [inter])
+                    clipped_lines_temp.append(intersec)
 
-                # Patch de linhas
-                if object_.fill:
-                    for i, _ in enumerate(clipped_lines_temp):
-                        if i < len(clipped_lines_temp) - 1:
-                            if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
-                                clipped_lines_temp.insert(i + 1,
-                                                          [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
-                        else:
-                            if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
-                                clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
+            if object_.fill:
+                for i, _ in enumerate(clipped_lines_temp):
+                    if i < len(clipped_lines_temp) - 1:
+                        if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
+                            clipped_lines_temp.insert(i + 1,
+                                                        [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
+                    else:
+                        if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
+                            clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
 
-                clipped_lines = clipped_lines_temp.copy()
-                clipped_lines_temp.clear()
+            print("teste3", clipped_lines)
+            print("teste4", clipped_lines_temp)
+            clipped_lines = clipped_lines_temp.copy()
+            clipped_lines_temp.clear()
 
         return clipped_lines
 
-def cohen_sutherland(line):
+def cohen_sutherland(object_):
     clipped_line = []
     region_codes = []
-
+    line = object_.normalized_coordinates
     # Get the code for each point of the line
     for point in line:
         region_code = 0b0000
@@ -183,10 +188,12 @@ def intersection(line, intersections):
             new_line.append([new_x, new_y])
             break
 
+    print('new line'    , new_line)
     return new_line if len(new_line) == 2 else []
 
 
-def liang_barsky(line):
+def liang_barsky(object_):
+    line = object_.normalized_coordinates
     p1 = -(line[1][0] - line[0][0])
     p2 = -p1
     p3 = -(line[1][1] - line[0][1])
