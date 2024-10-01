@@ -50,8 +50,6 @@ def sutherland_hodgeman(object_):
                 comp_inside = None
                 comp_a = None
                 comp_b = None
-                print("teste", clipped_lines)
-                print("teste2", clipped_lines_temp)
                 match inter:
                     case 'LEFT':
                         comp_inside = line[0][0] > -1 and line[1][0] > -1
@@ -89,12 +87,15 @@ def sutherland_hodgeman(object_):
                         if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
                             clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
 
-            print("teste3", clipped_lines)
-            print("teste4", clipped_lines_temp)
             clipped_lines = clipped_lines_temp.copy()
             clipped_lines_temp.clear()
 
-        return clipped_lines
+        clipped_point = []
+
+        for line in clipped_lines:
+            clipped_point.append(line[0])
+
+        return clipped_point
 
 def cohen_sutherland(object_):
     clipped_line = []
