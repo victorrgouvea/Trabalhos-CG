@@ -1,8 +1,8 @@
 import numpy as np
 from system.utils import create_normalized_matrix, create_rotation_matrix, create_translation_matrix, create_scale_matrix
+from objects.border import Border
 
-
-class Window:
+class Window():
 
     def __init__(self, wx, wy) -> None:
         self.wxmin = -wx/2
@@ -15,8 +15,12 @@ class Window:
         self.center = [(self.wxmin + self.wxmax) / 2, (self.wymin + self.wymax) / 2]
         self.normalized_center = [0, 0]
         self.angle_offset = 0
-        self.coordinates = [[self.wxmin, self.wymin, 1], [self.wxmax, self.wxmin, 1], [self.wxmax, self.wymax, 1], [self.wxmin, self.wymax, 1]]
+        self.coordinates = [[self.wxmin, self.wymin, 1],
+                            [self.wxmax, self.wxmin, 1],
+                            [self.wxmax, self.wymax, 1],
+                            [self.wxmin, self.wymax, 1]]
         self.normalized_coordinates = [[-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]]
+        self.border = Border(self.coordinates)
 
     def change_offset(self, x, y):
         point = np.matrix([x, y, 1])

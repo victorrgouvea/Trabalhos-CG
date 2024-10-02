@@ -4,7 +4,6 @@ class ControlPanel(Gtk.Box):
     def __init__(self, main_window):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.main_window = main_window
-        self.clipping_method = "CS"
 
         self.panning_label = Gtk.Label()
         self.panning_label.set_markup("<b>Panning</b>")
@@ -91,8 +90,8 @@ class ControlPanel(Gtk.Box):
         self.cohen_sutherland_button = Gtk.RadioButton.new_with_label_from_widget(None, "Cohen-Sutherland")
         self.liang_barsky_button = Gtk.RadioButton.new_with_label_from_widget(self.cohen_sutherland_button, "Liang-Barsky")
 
-        self.cohen_sutherland_button.connect("toggled", self.on_clipping_method_toggled, "CS")
-        self.liang_barsky_button.connect("toggled", self.on_clipping_method_toggled, "LB")
+        self.cohen_sutherland_button.connect("toggled", self.on_clipping_method_toggled, "cohen-sutherland")
+        self.liang_barsky_button.connect("toggled", self.on_clipping_method_toggled, "liang_barsky")
 
         clip_box.pack_start(self.cohen_sutherland_button, True, True, 0)
         clip_box.pack_start(self.liang_barsky_button, True, True, 0)
@@ -137,9 +136,7 @@ class ControlPanel(Gtk.Box):
 
     def on_clipping_method_toggled(self, button, method):
         if button.get_active():
-            self.clipping_method = method
-            print(f"Selected Clipping Method: {self.clipping_method}")
-            # self.main_window.set_clipping_method(method)
+            self.main_window.display_file.clip_algorithm = method
 
     def key_handler(self, key):
         key = key.lower()

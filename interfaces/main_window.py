@@ -37,7 +37,7 @@ class MainWindow(Gtk.Window):
         ## <TODO> move those below to the system.py, where we will integrate different parts of the system
 
         # window
-        self.window = Window(320, 320)
+        self.window = Window(1280, 1280)
 
         # view port
         self.view_port = ViewPort(view_size, view_size, self.window)

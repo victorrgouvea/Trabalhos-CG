@@ -8,6 +8,7 @@ class DisplayFile:
         self.objects = []
         self.view_port = view_port
         self.window = view_port.window
+        self.clip_algorithm = 'cohen-sutherland'
 
     def add_object(self, name, type, coords, color, fill = False):
         if type == 'line':
@@ -26,6 +27,11 @@ class DisplayFile:
         norm_matrix = self.window.get_normalized_matrix()
         for objects in self.objects:
              objects.apply_normalization(norm_matrix)
-             clip(objects)
+             clip(objects, self.clip_algorithm)
              if objects.clipped_coords:
                 objects.draw(context, self.view_port.transform)
+
+        if self.window.border.normalized_coordinates == []:
+            self.window.border.apply_normalization(norm_matrix)
+        
+        self.window.border.draw(context, self.view_port.transform)

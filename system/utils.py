@@ -40,48 +40,47 @@ def clip(object_, algorithm = 'cohen-sutherland'):
         print(object_.clipped_coords)
 
 def sutherland_hodgeman(object_):
-        clipped_lines = object_.normalized_coordinates
+        points = object_.normalized_coordinates
         clipped_lines_temp = []
-        length = len(clipped_lines)
+        clipped_lines = []
+        for x in range(len(points)):
+            clipped_lines.append([points[x], points[x + 1] if x < len(points) - 1 else points[0]])
+        print("start")
         for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
-            for v in range(length):
-                line = [clipped_lines[v], clipped_lines[v + 1] if v < len(clipped_lines) - 1 else clipped_lines[0]]
-                print("line", line)
+            for v in range(len(clipped_lines)):
+                line = clipped_lines[v]
                 comp_inside = None
                 comp_a = None
                 comp_b = None
                 match inter:
                     case 'LEFT':
-                        comp_inside = line[0][0] >= -1 and line[1][0] >= -1
-                        comp_a = line[0][0] >= -1
-                        comp_b = line[1][0] >= -1
+                        comp_inside = line[0][0] > -1 and line[1][0] > -1
+                        comp_a = line[0][0] > -1
+                        comp_b = line[1][0] > -1
                     case 'RIGHT':
-                        comp_inside = line[0][0] <= 1 and line[1][0] <= 1
-                        comp_a = line[0][0] <= 1
-                        comp_b = line[1][0] <= 1
+                        comp_inside = line[0][0] < 1 and line[1][0] < 1
+                        comp_a = line[0][0] < 1
+                        comp_b = line[1][0] < 1
                     case 'BOTTOM':
-                        comp_inside = line[0][1] >= -1 and line[1][1] >= -1
-                        comp_a = line[0][1] >= -1
-                        comp_b = line[1][1] >= -1
+                        comp_inside = line[0][1] > -1 and line[1][1] > -1
+                        comp_a = line[0][1] > -1
+                        comp_b = line[1][1] > -1
                     case 'TOP':
-                        comp_inside = line[0][1] <= 1 and line[1][1] <= 1
-                        comp_a = line[0][1] <= 1
-                        comp_b = line[1][1] <= 1
+                        comp_inside = line[0][1] < 1 and line[1][1] < 1
+                        comp_a = line[0][1] < 1
+                        comp_b = line[1][1] < 1
 
                 if comp_inside:
-                    clipped_lines_temp.append(line[0])
+                    clipped_lines_temp.append(line)
                 elif comp_a:
-                    intersec = intersection(line, [['INSIDE'], [inter]])
+                    intersec = intersection2(line, None, inter, False)
                     if intersec != []:
-                        clipped_lines_temp.append(intersec[0])
-                        #clipped_lines_temp.append(intersec[1])
+                        clipped_lines_temp.append(intersec)
                 elif comp_b:
-                    intersec = intersection(line, [[inter], ['INSIDE']])
+                    intersec = intersection2(line, inter, None, False)
                     if intersec != []:
-                        clipped_lines_temp.append(intersec[0])
-                        #clipped_lines_temp.append(intersec[1])
-
-
+                        clipped_lines_temp.append(intersec)
+            
             for i, _ in enumerate(clipped_lines_temp):
                 if i < len(clipped_lines_temp) - 1:
                     if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
@@ -89,13 +88,59 @@ def sutherland_hodgeman(object_):
                                                     [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
                 else:
                     if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
+                        print("entrou")
                         clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
+            
             clipped_lines = clipped_lines_temp.copy()
-            length = len(clipped_lines_temp)
             clipped_lines_temp.clear()
-
-        clipped_point = clipped_lines
+        clipped_point = []
+        print("lines", clipped_lines)
+        for x in clipped_lines:
+            clipped_point.append(x[0])
+        print("points", clipped_point)
         return clipped_point
+
+
+def intersection2(line, inter_a, inter_b, condition):
+        '''
+        Cacula a interseção do vetor com a window.
+        '''
+
+        m = inf
+
+        if (line[1][0] - line[0][0]) != 0:
+            m = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0])
+
+        new_line = []
+
+        for inter, vector in zip([inter_a, inter_b], line):
+
+            new_x = vector[0]
+            new_y = vector[1]
+
+            match inter:
+                case 'LEFT':
+                    new_x = -1
+                    new_y = m * (-1 - vector[0]) + vector[1]
+
+                case 'RIGHT':
+                    new_x = 1
+                    new_y = m * (1 - vector[0]) + vector[1]
+
+                case 'TOP':
+                    new_x = vector[0] + (1.0 / m) * (1 - vector[1])
+                    new_y = 1
+
+                case 'BOTTOM':
+                    new_x = vector[0] + (1.0 / m) * (-1 - vector[1])
+                    new_y = -1
+
+            if ((new_x < -1 or new_x > 1) or (new_y < -1 or new_y > 1)) and condition:
+                return []
+
+            new_line.append([new_x, new_y])
+
+        return new_line
 
 def cohen_sutherland(object_):
     clipped_line = []
@@ -241,3 +286,8 @@ def liang_barsky(object_):
     new_vector_b = [line[0][0] + p2 * min_positive, line[0][1] + p4 * min_positive]
 
     return [new_vector_a, new_vector_b]
+"""
+lines [[[1, 0.578125], [0.53125, 0.578125]], [[0.53125, 0.578125], [0.53125, 0.578125, 1]], [[0.53125, 0.578125, 1], [0.53125, 0.578125]], [[0.53125, 0.578125], [0.53125, 1]], [[0.53125, 1], [0.578125, 1]], [[0.578125, 1], [1, 0.578125]]]
+points [[1, 0.578125], [0.53125, 0.578125], [0.53125, 0.578125, 1], [0.53125, 0.578125], [0.53125, 1], [0.578125, 1]]
+([1, 0.578125), (0.53125, 0.578125), (0.53125, 1), (0.578125, 1)
+"""
