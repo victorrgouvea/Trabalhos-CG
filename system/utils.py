@@ -40,61 +40,61 @@ def clip(object_, algorithm = 'cohen-sutherland'):
         print(object_.clipped_coords)
 
 def sutherland_hodgeman(object_):
-        clipped_lines = []
-        original_coords = object_.normalized_coordinates
+        clipped_lines = object_.normalized_coordinates
         clipped_lines_temp = []
-
+        length = len(clipped_lines)
         for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
-            for v in range(len(original_coords)):
-                line = [original_coords[v], original_coords[v + 1] if v < len(original_coords) - 1 else original_coords[0]]
+            for v in range(length):
+                line = [clipped_lines[v], clipped_lines[v + 1] if v < len(clipped_lines) - 1 else clipped_lines[0]]
+                print("line", line)
                 comp_inside = None
                 comp_a = None
                 comp_b = None
                 match inter:
                     case 'LEFT':
-                        comp_inside = line[0][0] > -1 and line[1][0] > -1
-                        comp_a = line[0][0] > -1
-                        comp_b = line[1][0] > -1
+                        comp_inside = line[0][0] >= -1 and line[1][0] >= -1
+                        comp_a = line[0][0] >= -1
+                        comp_b = line[1][0] >= -1
                     case 'RIGHT':
-                        comp_inside = line[0][0] < 1 and line[1][0] < 1
-                        comp_a = line[0][0] < 1
-                        comp_b = line[1][0] < 1
+                        comp_inside = line[0][0] <= 1 and line[1][0] <= 1
+                        comp_a = line[0][0] <= 1
+                        comp_b = line[1][0] <= 1
                     case 'BOTTOM':
-                        comp_inside = line[0][1] > -1 and line[1][1] > -1
-                        comp_a = line[0][1] > -1
-                        comp_b = line[1][1] > -1
+                        comp_inside = line[0][1] >= -1 and line[1][1] >= -1
+                        comp_a = line[0][1] >= -1
+                        comp_b = line[1][1] >= -1
                     case 'TOP':
-                        comp_inside = line[0][1] < 1 and line[1][1] < 1
-                        comp_a = line[0][1] < 1
-                        comp_b = line[1][1] < 1
+                        comp_inside = line[0][1] <= 1 and line[1][1] <= 1
+                        comp_a = line[0][1] <= 1
+                        comp_b = line[1][1] <= 1
 
                 if comp_inside:
-                    clipped_lines_temp.append(line)
+                    clipped_lines_temp.append(line[0])
                 elif comp_a:
-                    intersec = intersection(line, [inter])
-                    clipped_lines_temp.append(intersec)
+                    intersec = intersection(line, [['INSIDE'], [inter]])
+                    if intersec != []:
+                        clipped_lines_temp.append(intersec[0])
+                        #clipped_lines_temp.append(intersec[1])
                 elif comp_b:
-                    intersec = intersection(line, [inter])
-                    clipped_lines_temp.append(intersec)
+                    intersec = intersection(line, [[inter], ['INSIDE']])
+                    if intersec != []:
+                        clipped_lines_temp.append(intersec[0])
+                        #clipped_lines_temp.append(intersec[1])
 
-            if object_.fill:
-                for i, _ in enumerate(clipped_lines_temp):
-                    if i < len(clipped_lines_temp) - 1:
-                        if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
-                            clipped_lines_temp.insert(i + 1,
-                                                        [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
-                    else:
-                        if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
-                            clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
 
+            for i, _ in enumerate(clipped_lines_temp):
+                if i < len(clipped_lines_temp) - 1:
+                    if clipped_lines_temp[i][1] != clipped_lines_temp[i + 1][0]:
+                        clipped_lines_temp.insert(i + 1,
+                                                    [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
+                else:
+                    if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
+                        clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
             clipped_lines = clipped_lines_temp.copy()
+            length = len(clipped_lines_temp)
             clipped_lines_temp.clear()
 
-        clipped_point = []
-
-        for line in clipped_lines:
-            clipped_point.append(line[0])
-
+        clipped_point = clipped_lines
         return clipped_point
 
 def cohen_sutherland(object_):
@@ -189,7 +189,6 @@ def intersection(line, intersections):
             new_line.append([new_x, new_y])
             break
 
-    print('new line'    , new_line)
     return new_line if len(new_line) == 2 else []
 
 
