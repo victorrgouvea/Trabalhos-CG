@@ -14,6 +14,7 @@ class GenericObject(ABC):
             self.coordinates.append([x[0], x[1], 1])
         self.color = color
         self.center = self.get_center()
+        self.clipped_lines = []
 
     @abstractmethod
     def draw(self, context, viewport_function, normalize_matrix):
@@ -35,7 +36,6 @@ class GenericObject(ABC):
         point = np.matrix([dx, dy, 1])
         rot_mat = create_rotation_matrix(angle)
         point = np.matmul(point, rot_mat)
-        print(point)
         return create_translation_matrix(point.item(0), point.item(1))
 
     def scale(self, sx, sy):

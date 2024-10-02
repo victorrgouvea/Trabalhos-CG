@@ -28,7 +28,7 @@ class DisplayFile:
         for objects in self.objects:
              objects.apply_normalization(norm_matrix)
              clip(objects, self.clip_algorithm)
-             if objects.clipped_coords:
+             if objects.clipped_coords or objects.clipped_lines:
                 objects.draw(context, self.view_port.transform)
 
         if self.window.border.normalized_coordinates == []:

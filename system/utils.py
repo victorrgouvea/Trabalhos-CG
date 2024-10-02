@@ -28,16 +28,32 @@ def clip_point(object_):
 
 def clip(object_, algorithm = 'cohen-sutherland'):
         object_.clipped_coords = []
-        if object_.type == 'wireframe':
-            object_.clipped_coords = sutherland_hodgeman(object_)
+        if object_.type == 'wireframe' and object_.fill:
+            object_.clipped_lines = sutherland_hodgeman(object_)
         elif object_.type == 'point':
             object_.clipped_coords = clip_point(object_)
-        else:
+        elif object_.type == 'line':
             if algorithm == 'cohen-sutherland':
-                object_.clipped_coords = cohen_sutherland(object_)
+                object_.clipped_coords = cohen_sutherland(object_.normalized_coordinates)
             else:
-                object_.clipped_coords = liang_barsky(object_)
-        print(object_.clipped_coords)
+                object_.clipped_coords = liang_barsky(object_.normalized_coordinates)
+        else:
+            object_.clipped_lines = clip_lines(object_, algorithm)
+
+def clip_lines(object_, algorithm):
+        clipped_lines = []
+        normalized_lines = []
+        points = object_.normalized_coordinates
+        for x in range(len(points)):
+            normalized_lines.append([points[x], points[x + 1] if x < len(points) - 1 else points[0]])
+        for line in normalized_lines:
+            if algorithm == 'cohen-sutherland':
+                clipped_line = cohen_sutherland(line)
+            else:
+                clipped_line = liang_barsky(line)
+            if len(clipped_line) > 0:
+                clipped_lines.append(clipped_line)
+        return clipped_lines
 
 def sutherland_hodgeman(object_):
         points = object_.normalized_coordinates
@@ -45,7 +61,6 @@ def sutherland_hodgeman(object_):
         clipped_lines = []
         for x in range(len(points)):
             clipped_lines.append([points[x], points[x + 1] if x < len(points) - 1 else points[0]])
-        print("start")
         for inter in ['LEFT', 'RIGHT', 'BOTTOM', 'TOP']:
             for v in range(len(clipped_lines)):
                 line = clipped_lines[v]
@@ -73,11 +88,11 @@ def sutherland_hodgeman(object_):
                 if comp_inside:
                     clipped_lines_temp.append(line)
                 elif comp_a:
-                    intersec = intersection2(line, None, inter, False)
+                    intersec = intersection(line, [['inside'], [inter]], False)
                     if intersec != []:
                         clipped_lines_temp.append(intersec)
                 elif comp_b:
-                    intersec = intersection2(line, inter, None, False)
+                    intersec = intersection(line, [[inter], ['inside']], False)
                     if intersec != []:
                         clipped_lines_temp.append(intersec)
             
@@ -88,64 +103,15 @@ def sutherland_hodgeman(object_):
                                                     [clipped_lines_temp[i][1], clipped_lines_temp[i + 1][0]])
                 else:
                     if clipped_lines_temp[i][1] != clipped_lines_temp[0][0]:
-                        print("entrou")
                         clipped_lines_temp.append([clipped_lines_temp[i][1], clipped_lines_temp[0][0]])
             
             clipped_lines = clipped_lines_temp.copy()
             clipped_lines_temp.clear()
-        clipped_point = []
-        print("lines", clipped_lines)
-        for x in clipped_lines:
-            clipped_point.append(x[0])
-        print("points", clipped_point)
-        return clipped_point
+        return clipped_lines
 
-
-def intersection2(line, inter_a, inter_b, condition):
-        '''
-        Cacula a interseção do vetor com a window.
-        '''
-
-        m = inf
-
-        if (line[1][0] - line[0][0]) != 0:
-            m = (line[1][1] - line[0][1]) / (line[1][0] - line[0][0])
-
-        new_line = []
-
-        for inter, vector in zip([inter_a, inter_b], line):
-
-            new_x = vector[0]
-            new_y = vector[1]
-
-            match inter:
-                case 'LEFT':
-                    new_x = -1
-                    new_y = m * (-1 - vector[0]) + vector[1]
-
-                case 'RIGHT':
-                    new_x = 1
-                    new_y = m * (1 - vector[0]) + vector[1]
-
-                case 'TOP':
-                    new_x = vector[0] + (1.0 / m) * (1 - vector[1])
-                    new_y = 1
-
-                case 'BOTTOM':
-                    new_x = vector[0] + (1.0 / m) * (-1 - vector[1])
-                    new_y = -1
-
-            if ((new_x < -1 or new_x > 1) or (new_y < -1 or new_y > 1)) and condition:
-                return []
-
-            new_line.append([new_x, new_y])
-
-        return new_line
-
-def cohen_sutherland(object_):
+def cohen_sutherland(line):
     clipped_line = []
     region_codes = []
-    line = object_.normalized_coordinates
     # Get the code for each point of the line
     for point in line:
         region_code = 0b0000
@@ -191,7 +157,7 @@ def cohen_sutherland(object_):
 
     return clipped_line
 
-def intersection(line, intersections):
+def intersection(line, intersections, condition = True):
 
     m = inf
 
@@ -225,7 +191,7 @@ def intersection(line, intersections):
                     new_x = point[0] + (1.0 / m) * (-1 - point[1])
                     new_y = -1
 
-            if (new_x < -1 or new_x > 1) or (new_y < -1 or new_y > 1):
+            if (new_x < -1 or new_x > 1) or (new_y < -1 or new_y > 1) and condition:
                 if diagonal:
                     continue
                 else:
@@ -237,8 +203,7 @@ def intersection(line, intersections):
     return new_line if len(new_line) == 2 else []
 
 
-def liang_barsky(object_):
-    line = object_.normalized_coordinates
+def liang_barsky(line):
     p1 = -(line[1][0] - line[0][0])
     p2 = -p1
     p3 = -(line[1][1] - line[0][1])

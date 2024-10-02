@@ -7,19 +7,27 @@ class Wireframe(GenericObject):
         super().__init__(name, 'wireframe', coordinates, color, fill)
 
     def draw(self, context, viewport_function):
-
+        context.new_path()
         context.set_source_rgb(self.color[0], self.color[1], self.color[2])
+        context.set_line_width(2)
+        screen_lines = [] 
+        for i in range(len(self.clipped_lines)):
+            point_a = viewport_function(self.clipped_lines[i][0][0], self.clipped_lines[i][0][1])
+            point_b = viewport_function(self.clipped_lines[i][1][0], self.clipped_lines[i][1][1])
+            screen_lines.append([point_a, point_b])
 
-        begining_translated_coords = viewport_function(self.clipped_coords[0][0], self.clipped_coords[0][1])
-        context.move_to(begining_translated_coords[0], begining_translated_coords[1])
-        for i in range(1, len(self.clipped_coords)):
-            next_translated_coords = viewport_function(self.clipped_coords[i][0], self.clipped_coords[i][1])
-            context.line_to(next_translated_coords[0], next_translated_coords[1])
+        if self.fill and len(screen_lines) > 0:
+                context.move_to(screen_lines[0][0][0], screen_lines[0][0][1])
 
-        next_translated_coords = viewport_function(self.clipped_coords[0][0], self.clipped_coords[0][1])
-        context.line_to(next_translated_coords[0], next_translated_coords[1])
+        for line in screen_lines:
+            if self.fill:
+                context.line_to(line[1][0], line[1][1])
+            else:
+                context.move_to(line[0][0], line[0][1])
+                context.line_to(line[1][0], line[1][1])
+                context.stroke()
+
+        context.close_path()
 
         if self.fill:
-            context.fill_preserve()
-        context.set_line_width(2)
-        context.stroke()
+            context.fill()
