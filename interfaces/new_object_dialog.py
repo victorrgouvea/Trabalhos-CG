@@ -24,22 +24,24 @@ class NewObjectDialog(Gtk.Dialog):
         point_button = Gtk.RadioButton.new_with_label_from_widget(None, "Point")
         line_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Line")
         wireframe_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Wireframe")
+        curve_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Curve")
 
         point_button.connect("toggled", self.on_button_toggled, "Point")
         line_button.connect("toggled", self.on_button_toggled, "Line")
         wireframe_button.connect("toggled", self.on_button_toggled, "Wireframe")
+        curve_button.connect("toggled", self.on_button_toggled, "Curve")
 
         # Checkboxes for type of object
         radio_box.pack_start(point_button, True, True, 0)
         radio_box.pack_start(line_button, True, True, 0)
         radio_box.pack_start(wireframe_button, True, True, 0)
+        radio_box.pack_start(curve_button, True, True, 0)
 
         box.add(radio_box)
 
         self.draw_polygon_checkbox = Gtk.CheckButton(label="Fill Wireframe?")
         self.draw_polygon_checkbox.connect("toggled", self.on_draw_polygon_toggled)
         box.add(self.draw_polygon_checkbox)
-
 
         # Entry for coordinates
         self.coordinates_label = Gtk.Label(label="Coordinates (Ex: (x1, y1), (x2, y2)...)")
