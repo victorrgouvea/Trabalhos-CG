@@ -24,18 +24,18 @@ class NewObjectDialog(Gtk.Dialog):
         point_button = Gtk.RadioButton.new_with_label_from_widget(None, "Point")
         line_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Line")
         wireframe_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Wireframe")
-        curve_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Curve")
+        bezier_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Bezier Curve")
 
         point_button.connect("toggled", self.on_button_toggled, "Point")
         line_button.connect("toggled", self.on_button_toggled, "Line")
         wireframe_button.connect("toggled", self.on_button_toggled, "Wireframe")
-        curve_button.connect("toggled", self.on_button_toggled, "Curve")
+        bezier_button.connect("toggled", self.on_button_toggled, "Bezier Curve")
 
         # Checkboxes for type of object
         radio_box.pack_start(point_button, True, True, 0)
         radio_box.pack_start(line_button, True, True, 0)
         radio_box.pack_start(wireframe_button, True, True, 0)
-        radio_box.pack_start(curve_button, True, True, 0)
+        radio_box.pack_start(bezier_button, True, True, 0)
 
         box.add(radio_box)
 
@@ -102,6 +102,10 @@ class NewObjectDialog(Gtk.Dialog):
             except Exception as e:
                 print(e)
                 return self.show_error_dialog("Invalid input format for coordinates")
+
+            # Only accepts when all curves are completed
+            if self.selected_type == "Bezier Curve" and not (len(coordinates) == 4 or (len(coordinates) > 4 and len(coordinates) % 4 == 3)):
+                return self.show_error_dialog("Invalid number of points for Bezier Curve")
 
             # Fill wireframe if selected
             if self.selected_type == "Wireframe" and self.fill_wireframe:

@@ -1,6 +1,7 @@
 from objects.line import Line
 from objects.point import Point
 from objects.wireframe import Wireframe
+from objects.bezier_curve import BezierCurve
 from system.utils import clip
 
 class DisplayFile:
@@ -17,6 +18,8 @@ class DisplayFile:
             object = Point(name, coords, color)
         elif type == 'wireframe':
             object = Wireframe(name, coords, color, fill)
+        elif type == 'bezier curve':
+            object = BezierCurve(name, coords, color, 100)
 
         self.objects.append(object)
 

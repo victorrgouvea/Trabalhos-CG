@@ -15,11 +15,9 @@ class BezierCurve(GenericObject):
                                                        coordinates[i + 2],
                                                        coordinates[i + 3],
                                                        ], steps)
-
-        super().__init__(name, 'bezier_curve', coordinates, color)
+        super().__init__(name, 'bezier_curve', corrected_coordinates, color)
 
     def generate_curve_coords(self, coords, steps):
-
         bezier_points_x = np.matrix([[coords[0][0]], [coords[1][0]], [coords[2][0]], [coords[3][0]]])
         bezier_points_y = np.matrix([[coords[0][1]], [coords[1][1]], [coords[2][1]], [coords[3][1]]])
 
@@ -30,7 +28,7 @@ class BezierCurve(GenericObject):
 
         coordinates = []
 
-        for step in range(steps):
+        for step in range(steps + 1):
 
             t = step / steps
 
@@ -39,8 +37,8 @@ class BezierCurve(GenericObject):
             new_x = step_matrix * bezier_matrix * bezier_points_x
             new_y = step_matrix * bezier_matrix * bezier_points_y
 
-            coordinates.append([new_x[0, 0], new_y[0, 0], 1])
-
+            coordinates.append([np.round(new_x[0, 0], 4), np.round(new_y[0, 0], 4), 1])
+            
         return coordinates
 
     def draw(self, context, viewport_function):
@@ -53,18 +51,9 @@ class BezierCurve(GenericObject):
             point_b = viewport_function(self.clipped_lines[i][1][0], self.clipped_lines[i][1][1])
             screen_lines.append([point_a, point_b])
 
-        if self.fill and len(screen_lines) > 0:
-                context.move_to(screen_lines[0][0][0], screen_lines[0][0][1])
-
-        for line in screen_lines:
-            if self.fill:
-                context.line_to(line[1][0], line[1][1])
-            else:
-                context.move_to(line[0][0], line[0][1])
-                context.line_to(line[1][0], line[1][1])
-                context.stroke()
+        for line in screen_lines[:-1]:
+            context.move_to(line[0][0], line[0][1])
+            context.line_to(line[1][0], line[1][1])
+            context.stroke()
 
         context.close_path()
-
-        if self.fill:
-            context.fill()
