@@ -2,6 +2,7 @@ from objects.line import Line
 from objects.point import Point
 from objects.wireframe import Wireframe
 from objects.bezier_curve import BezierCurve
+from objects.spline_curve import SplineCurve
 from system.utils import clip
 
 class DisplayFile:
@@ -19,7 +20,9 @@ class DisplayFile:
         elif type == 'wireframe':
             object = Wireframe(name, coords, color, fill)
         elif type == 'bezier curve':
-            object = BezierCurve(name, coords, color, 100)
+            object = BezierCurve(name, coords, color)
+        elif type == 'spline curve':
+            object = SplineCurve(name, coords, color)
 
         self.objects.append(object)
 

@@ -3,7 +3,7 @@ import numpy as np
 
 class BezierCurve(GenericObject):
 
-    def __init__(self, name, coordinates, color, steps = 100):
+    def __init__(self, name, coordinates, color, steps = 30):
         corrected_coordinates = []
 
         for i in range(0, len(coordinates), 3):
