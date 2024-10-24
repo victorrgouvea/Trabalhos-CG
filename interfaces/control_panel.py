@@ -11,7 +11,7 @@ class ControlPanel(Gtk.Box):
 
         # Criando um grid para os botões de movimentação (Up, Down, Left, Right)
         move_grid = Gtk.Grid()
-        move_grid.set_row_spacing(5)
+        move_grid.set_row_spacing(10)
         move_grid.set_column_spacing(5)
 
         # Botões de movimentação
@@ -19,17 +19,24 @@ class ControlPanel(Gtk.Box):
         self.down_button = Gtk.Button(label="Down")
         self.left_button = Gtk.Button(label="Left")
         self.right_button = Gtk.Button(label="Right")
+        self.inward_left_button = Gtk.Button(label="Inward Left")
+        self.inward_right_button = Gtk.Button(label="Inward Right")
 
         self.up_button.connect("clicked", self.on_up_clicked)
         self.down_button.connect("clicked", self.on_down_clicked)
         self.left_button.connect("clicked", self.on_left_clicked)
         self.right_button.connect("clicked", self.on_right_clicked)
+        self.inward_left_button.connect("clicked", self.on_inward_left_clicked)
+        self.inward_right_button.connect("clicked", self.on_inward_right_clicked)
 
         # Adicionar os botões no grid
         move_grid.attach(self.up_button, 1, 0, 1, 1)     # Botão "Up" no centro superior
         move_grid.attach(self.left_button, 0, 1, 1, 1)   # Botão "Left" no centro esquerdo
         move_grid.attach(self.right_button, 2, 1, 1, 1)  # Botão "Right" no centro direito
         move_grid.attach(self.down_button, 1, 2, 1, 1)   # Botão "Down" no centro inferior
+        move_grid.attach(self.inward_left_button, 0, 4, 1, 1)   # Botão "Inward Left"
+        move_grid.attach(self.inward_right_button, 2, 4, 1, 1)  # Botão "Inward Right"
+
 
         align_grid = Gtk.Alignment.new(0.5, 0, 0, 0)
         align_grid.add(move_grid)
@@ -113,6 +120,12 @@ class ControlPanel(Gtk.Box):
     def on_right_clicked(self, _):
         self.main_window.window.change_offset(10, 0)
         self.main_window.drawing_area.force_redraw()
+
+    def on_inward_left_clicked(self, _):
+        pass
+
+    def on_inward_right_clicked(self, _):
+        pass
 
     def on_zoom_out_clicked(self, _):
         self.main_window.window.change_zoom(1.05, 1.05)

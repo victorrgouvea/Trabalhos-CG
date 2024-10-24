@@ -47,7 +47,7 @@ class NewObjectDialog(Gtk.Dialog):
         box.add(self.draw_polygon_checkbox)
 
         # Entry for coordinates
-        self.coordinates_label = Gtk.Label(label="Coordinates (Ex: (x1, y1), (x2, y2)...)")
+        self.coordinates_label = Gtk.Label(label="Coordinates (Ex: (x1, y1, z1), (x2, y2, z2)...)")
         self.coordinates_entry = Gtk.Entry()
         box.add(self.coordinates_label)
         box.add(self.coordinates_entry)

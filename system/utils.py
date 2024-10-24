@@ -1,5 +1,5 @@
 import numpy as np
-from math import inf
+from math import cos, radians, sin, degrees, inf
 
 def create_translation_matrix(dx, dy):
     return np.matrix([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
@@ -256,3 +256,74 @@ lines [[[1, 0.578125], [0.53125, 0.578125]], [[0.53125, 0.578125], [0.53125, 0.5
 points [[1, 0.578125], [0.53125, 0.578125], [0.53125, 0.578125, 1], [0.53125, 0.578125], [0.53125, 1], [0.578125, 1]]
 ([1, 0.578125), (0.53125, 0.578125), (0.53125, 1), (0.578125, 1)
 """
+
+def create_translation_matrix_3d(direction):
+    return np.matrix([[1.0, 0.0, 0.0, direction[0]],
+                        [0.0, 1.0, 0.0, direction[1]],
+                        [0.0, 0.0, 1.0, direction[2]],
+                        [0.0, 0.0, 0.0, 1.0]])
+
+def create_rotation_matrix_3d(angle, inverse: bool = False) -> np.matrix:
+    sinx = sin(radians(angle[0]))
+    cosx = cos(radians(angle[0]))
+    siny = sin(radians(angle[1]))
+    cosy = cos(radians(angle[1]))
+    sinz = sin(radians(angle[2]))
+    cosz = cos(radians(angle[2]))
+
+    rotation_x = np.matrix([[1.0, 0.0, 0.0, 0.0],
+                            [0.0, cosx, -sinx, 0.0],
+                            [0.0, sinx, cosx, 0.0],
+                            [0.0, 0.0, 0.0, 1.0]])
+
+    rotation_y = np.matrix([[cosy, 0.0, siny, 0.0],
+                            [0.0, 1.0, 0.0, 0.0],
+                            [-siny, 0.0, cosy, 0.0],
+                            [0.0, 0.0, 0.0, 1.0]])
+
+    rotation_z = np.matrix([[cosz, -sinz, 0.0, 0.0],
+                            [sinz, cosz, 0.0, 0.0],
+                            [0.0, 0.0, 1.0, 0.0],
+                            [0.0, 0.0, 0.0, 1.0]])
+
+    if inverse:
+        return rotation_x @ rotation_y @ rotation_z
+
+    return rotation_z @ rotation_y @ rotation_x
+
+def create_scale_matrix_3d(scale):
+
+    return np.matrix([[scale[0], 0.0, 0.0, 0.0],
+                        [0.0, scale[1], 0.0, 0.0],
+                        [0.0, 0.0, scale[2], 0.0],
+                        [0.0, 0.0, 0.0, 1.0]])
+
+def create_normalization_matrix_3d(window_position, window_z_rotation, window_diff_scale):
+    translation = create_scale_matrix_3d(-window_position)
+    rotation = create_rotation_matrix_3d([0.0, 0.0, window_z_rotation])
+    scaling = create_scale_matrix_3d(window_diff_scale)
+
+    return scaling @ rotation @ translation
+
+def create_projection_matrix_3d(cop, normal):
+    translation = create_translation_matrix_3d(-cop)
+    normal_shadow_xz = [normal[0], 0.0, normal[2]]
+
+    rotation_y = degrees(np.matmul([0.0, 0.0, 1.0], normal_shadow_xz))
+
+    if normal[0] > 0.0:
+        rotation_y = 360 - rotation_y
+
+    normal_rotation_matrix = create_rotation_matrix_3d([0.0, rotation_y, 0.0])
+    new_normal = np.matmul(normal_rotation_matrix, normal.internal_vector_4d)
+    normal = [new_normal[0, 0], new_normal[0, 1], new_normal[0, 2]]
+
+    rotation_x = degrees(np.matmul([0.0, 0.0, 1.0], normal))
+
+    if normal.y < 0.0:
+        rotation_x = 360 - rotation_x
+
+    rotation_x = create_rotation_matrix_3d([rotation_x, 0.0, 0.0])
+    rotation_y = create_rotation_matrix_3d([0.0, rotation_y, 0.0])
+
+    return rotation_x @ rotation_y @ translation

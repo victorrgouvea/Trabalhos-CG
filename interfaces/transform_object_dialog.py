@@ -85,28 +85,34 @@ class TransformObjectDialog(Gtk.Dialog):
 
     # Inputs for the "Translation" option
     def show_translation_inputs(self):
-        label = Gtk.Label(label="Specify values for X and Y:")
+        label = Gtk.Label(label="Specify values for X, Y and Z:")
         self.entry_x = Gtk.Entry()
         self.entry_x.set_placeholder_text("X")
         self.entry_y = Gtk.Entry()
         self.entry_y.set_placeholder_text("Y")
+        self.entry_z = Gtk.Entry()
+        self.entry_z.set_placeholder_text("Z")
 
         # Add to the dynamic layout
         self.dynamic_area.pack_start(label, False, False, 0)
         self.dynamic_area.pack_start(self.entry_x, False, False, 0)
         self.dynamic_area.pack_start(self.entry_y, False, False, 0)
+        self.dynamic_area.pack_start(self.entry_z, False, False, 0)
 
     # Inputs for the "Scaling" option
     def show_scaling_inputs(self):
-        label = Gtk.Label(label="Specify values for X and Y:")
+        label = Gtk.Label(label="Specify values for X, Y and Z:")
         self.entry_x = Gtk.Entry()
         self.entry_x.set_placeholder_text("X")
         self.entry_y = Gtk.Entry()
         self.entry_y.set_placeholder_text("Y")
+        self.entry_z = Gtk.Entry()
+        self.entry_z.set_placeholder_text("Z")
 
         self.dynamic_area.pack_start(label, False, False, 0)
         self.dynamic_area.pack_start(self.entry_x, False, False, 0)
         self.dynamic_area.pack_start(self.entry_y, False, False, 0)
+        self.dynamic_area.pack_start(self.entry_z, False, False, 0)
 
     # Inputs for the "Rotation" option
     def show_rotation_inputs(self):
@@ -118,14 +124,17 @@ class TransformObjectDialog(Gtk.Dialog):
         self.center_world_button = Gtk.RadioButton.new_with_label_from_widget(None, "Around the world center")
         self.center_object_button = Gtk.RadioButton.new_with_label_from_widget(self.center_world_button, "Around the object center")
         self.arbitrary_point_button = Gtk.RadioButton.new_with_label_from_widget(self.center_world_button, "Around an arbitrary point")
+        self.arbitrary_axis_button = Gtk.RadioButton.new_with_label_from_widget(self.center_world_button, "Around an arbitrary axis")
 
         # Connect the arbitrary point button to display X and Y fields
         self.arbitrary_point_button.connect("toggled", self.on_arbitrary_point_selected)
+        self.arbitrary_axis_button.connect("toggled", self.on_arbitrary_axis_selected)
 
         self.dynamic_area.pack_start(label, False, False, 0)
         self.dynamic_area.pack_start(self.center_world_button, False, False, 0)
         self.dynamic_area.pack_start(self.center_object_button, False, False, 0)
         self.dynamic_area.pack_start(self.arbitrary_point_button, False, False, 0)
+        self.dynamic_area.pack_start(self.arbitrary_axis_button, False, False, 0)
         self.dynamic_area.pack_start(self.angle_entry, False, False, 0)
 
     # Show X and Y fields for the arbitrary point
@@ -145,9 +154,24 @@ class TransformObjectDialog(Gtk.Dialog):
 
         self.dynamic_area.show_all()
 
+    # Show fields for the arbitrary axis
+    def on_arbitrary_axis_selected(self, button):
+        for child in self.dynamic_area.get_children():
+            if isinstance(child, Gtk.Entry) and child.get_placeholder_text() == "(x1, y1, z1), (x2, y2, z2)":
+                self.dynamic_area.remove(child)
+
+        if self.arbitrary_axis_button.get_active():
+            self.entry_axis_arbitrary = Gtk.Entry()
+            self.entry_axis_arbitrary.set_placeholder_text("Axis = (x1, y1, z1), (x2, y2, z2)")
+
+            self.dynamic_area.pack_start(self.entry_axis_arbitrary, False, False, 0)
+
+        self.dynamic_area.show_all()
+
     # Function to handle the "Add" button click
     def on_add_button_clicked(self, widget):
         transformation = None
+        rotation_type = None
         if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
             self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text()), self.main_window.window.angle_offset))
             transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
@@ -170,7 +194,12 @@ class TransformObjectDialog(Gtk.Dialog):
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text())]))
                 rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}"
 
-            transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"
+            elif self.arbitrary_axis_button.get_active() and self.validate_axis(self.entry_axis_arbitrary.get_text()):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "axis", self.entry_axis_arbitrary.get_text()))
+                rotation_type = f"Around arbitrary axis: {self.entry_axis_arbitrary.get_text()}"
+
+            if rotation_type:
+                transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"
 
         if transformation:
             self.add_transformation(transformation)
@@ -188,6 +217,27 @@ class TransformObjectDialog(Gtk.Dialog):
         row.add(label)
         self.transformation_list.add(row)
         self.transformation_list.show_all()
+
+    def validate_axis(self, axis):
+        try:
+            input_string = axis.replace("(", "").replace(")", "").replace(" ", "")
+            coordinate_pairs = input_string.split(",")
+            coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
+            print(coordinates)
+            if len(coordinates) == 2:
+                return coordinates
+        except Exception as e:
+            dialog = Gtk.MessageDialog(
+                parent=self,
+                flags=Gtk.DialogFlags.MODAL,
+                type=Gtk.MessageType.ERROR,
+                buttons=Gtk.ButtonsType.OK,
+                message_format="Please enter two points in the format (x1, y1, z1), (x2, y2, z2)"
+            )
+            dialog.run()
+            dialog.destroy()
+
+        return False
 
     def validate_coords(self, x, y):
         try:

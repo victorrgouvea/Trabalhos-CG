@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from system.utils import create_translation_matrix, create_scale_matrix, create_rotation_matrix
-class GenericObject(ABC):
+from system.utils import create_translation_matrix_3d, create_scale_matrix_3d, create_rotation_matrix_3d
+class Generic3dObject(ABC):
 
     def __init__(self, name, type, coordinates, color = (0, 0, 0), fill = False):
         self.name = name
@@ -11,7 +11,7 @@ class GenericObject(ABC):
         self.clipped_coords = []
         self.fill = fill
         for x in coordinates:
-            self.coordinates.append([x[0], x[1], 1])
+            self.coordinates.append([x[0], x[1], x[2]])
         self.color = color
         self.center = self.get_center()
         self.clipped_lines = []
@@ -34,25 +34,25 @@ class GenericObject(ABC):
 
         return self.center
 
-    def translate(self, dx, dy, angle = 0):
-        point = np.matrix([dx, dy, 1])
-        rot_mat = create_rotation_matrix(angle)
+    def translate(self, vector, angle = 0):
+        point = np.matrix(vector)
+        rot_mat = create_rotation_matrix_3d(angle)
         point = np.matmul(point, rot_mat)
-        return create_translation_matrix(point.item(0), point.item(1))
+        return create_translation_matrix_3d([point.item(0), point.item(1), point.item(2)])
 
-    def scale(self, sx, sy):
-        scale_matrix = create_scale_matrix(sx, sy)
+    def scale(self, vector):
+        scale_matrix = create_scale_matrix_3d(vector)
         center = self.get_center()
-        translation_matrix_origin = create_translation_matrix(-center[0], -center[1])
-        translation_matrix_return = create_translation_matrix(center[0], center[1])
+        translation_matrix_origin = create_translation_matrix_3d([-center[0], -center[1], -center[2]])
+        translation_matrix_return = create_translation_matrix_3d([center[0], center[1], center[2]])
         scale_matrix = np.matmul(translation_matrix_origin, scale_matrix)
         scale_matrix = np.matmul(scale_matrix, translation_matrix_return)
         return scale_matrix
 
     def rotate(self, angle, center):
-        rotation_matrix = create_rotation_matrix(angle)
-        translation_matrix_origin = create_translation_matrix(-center[0], -center[1])
-        translation_matrix_return = create_translation_matrix(center[0], center[1])
+        rotation_matrix = create_rotation_matrix_3d(angle)
+        translation_matrix_origin = create_translation_matrix_3d([-center[0], -center[1], -center[2]])
+        translation_matrix_return = create_translation_matrix_3d([center[0], center[1], center[2]])
         rotation_matrix = np.matmul(translation_matrix_origin, rotation_matrix)
         rotation_matrix = np.matmul(rotation_matrix, translation_matrix_return)
         return rotation_matrix
@@ -81,10 +81,11 @@ class GenericObject(ABC):
             new_point = np.matmul(point, transformation_matrix)
             x[0] = new_point.item(0)
             x[1] = new_point.item(1)
+            x[2] = new_point.item(2)
 
     def apply_normalization(self, normalization_matrix):
         self.normalized_coordinates = []
         for x in self.coordinates:
             point = np.matrix(x)
             new_point = np.matmul(point, normalization_matrix)
-            self.normalized_coordinates.append([new_point.item(0), new_point.item(1), 1])
+            self.normalized_coordinates.append([new_point.item(0), new_point.item(1), new_point.item(2)])
