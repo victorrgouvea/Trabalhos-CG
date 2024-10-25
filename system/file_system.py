@@ -100,7 +100,7 @@ class FileSystem():
                 file.write(f'o {obj.name}\n')
                 file.write(f'usemtl {obj.name}\n')
                 for point in obj.coordinates:
-                    file.write(f'v {point[0]} {point[1]}\n')
+                    file.write(f'v {point[0]} {point[1]} {point[2]}\n')
                 file.write('\n')
                 
                 materials[obj.name] = obj.color

@@ -9,7 +9,9 @@ def create_scale_matrix(sx, sy):
 
 def create_rotation_matrix(angle):
     angle = np.deg2rad(angle)
-    return np.matrix([[np.cos(angle), -np.sin(angle), 0], [np.sin(angle), np.cos(angle), 0], [0, 0, 1]])
+    return np.matrix([[np.cos(angle), -np.sin(angle), 0],
+                       [np.sin(angle), np.cos(angle), 0], 
+                       [0, 0, 1]])
 
 def create_normalized_matrix(center, angle, scale):
     translation_matrix = create_translation_matrix(-center[0], -center[1])
@@ -258,10 +260,10 @@ points [[1, 0.578125], [0.53125, 0.578125], [0.53125, 0.578125, 1], [0.53125, 0.
 """
 
 def create_translation_matrix_3d(direction):
-    return np.matrix([[1.0, 0.0, 0.0, direction[0]],
-                        [0.0, 1.0, 0.0, direction[1]],
-                        [0.0, 0.0, 1.0, direction[2]],
-                        [0.0, 0.0, 0.0, 1.0]])
+    return np.matrix([[1.0, 0.0, 0.0, 0],
+                        [0.0, 1.0, 0.0, 0],
+                        [0.0, 0.0, 1.0, 0],
+                        [direction[0], direction[1], direction[2], 1.0]])
 
 def create_rotation_matrix_3d(angle, inverse: bool = False) -> np.matrix:
     sinx = sin(radians(angle[0]))
