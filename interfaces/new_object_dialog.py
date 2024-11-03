@@ -101,7 +101,7 @@ class NewObjectDialog(Gtk.Dialog):
             try:
                 input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
                 coordinate_pairs = input_string.split(",")
-                coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1])) for i in range(0, len(coordinate_pairs), 2)]
+                coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
             except Exception as e:
                 print(e)
                 return self.show_error_dialog("Invalid input format for coordinates")
@@ -114,7 +114,6 @@ class NewObjectDialog(Gtk.Dialog):
 
             # Fill wireframe if selected
             if self.selected_type == "Wireframe" and self.fill_wireframe:
-                print("Filling wireframe")
                 created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color, True)
             else:
                 created_object = self.main_window.display_file.add_object(self.name_entry.get_text(), self.selected_type.lower(), coordinates, color)

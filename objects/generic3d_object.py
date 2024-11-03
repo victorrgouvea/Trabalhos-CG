@@ -11,7 +11,10 @@ class Generic3dObject(ABC):
         self.clipped_coords = []
         self.fill = fill
         for x in coordinates:
-            self.coordinates.append([x[0], x[1], x[2]])
+            if (len(x) == 2):
+                self.coordinates.append([x[0], x[1], 0])
+            else:
+                self.coordinates.append([x[0], x[1], x[2]])
         self.color = color
         self.center = self.get_center()
         self.clipped_lines = []
@@ -34,13 +37,16 @@ class Generic3dObject(ABC):
 
         return self.center
 
-    def translate(self, vector, angle = 0):
+    def translate(self, vector, angle = [0,0,0]):
+        vector = [vector[0], vector[1], vector[2], 1]
         point = np.matrix(vector)
+        print("ANGLE", angle)
         rot_mat = create_rotation_matrix_3d(angle)
         point = np.matmul(point, rot_mat)
         return create_translation_matrix_3d([point.item(0), point.item(1), point.item(2)])
 
     def scale(self, vector):
+        vector = [vector[0], vector[1], vector[2], 1]
         scale_matrix = create_scale_matrix_3d(vector)
         center = self.get_center()
         translation_matrix_origin = create_translation_matrix_3d([-center[0], -center[1], -center[2]])
@@ -59,12 +65,12 @@ class Generic3dObject(ABC):
 
     def get_transformation_matrix(self, transformation):
         if transformation[0] == "T":
-            return self.translate(transformation[1], transformation[2], transformation[3])
+            return self.translate(transformation[1], transformation[2])
         elif transformation[0] == "S":
-            return self.scale(transformation[1], transformation[2])
+            return self.scale(transformation[1])
         elif transformation[0] == "R":
             if transformation[2] == "world":
-                center = [0, 0]
+                center = [0, 0, 0]
             elif transformation[2] == "object":
                 center = self.get_center()
             elif transformation[2] == "arbitrary":
@@ -75,17 +81,20 @@ class Generic3dObject(ABC):
         transformation_matrix = self.get_transformation_matrix(transformations[0])
         for i in range(1, len(transformations)):
             transformation_matrix = np.matmul(transformation_matrix, self.get_transformation_matrix(transformations[i]))
-
+        print("matrix", transformation_matrix)
+        new_coords = []
         for x in self.coordinates:
+            x = [x[0], x[1], x[2], 1]
             point = np.matrix(x)
             new_point = np.matmul(point, transformation_matrix)
-            x[0] = new_point.item(0)
-            x[1] = new_point.item(1)
-            x[2] = new_point.item(2)
+            new_coords.append([new_point.item(0), new_point.item(1), new_point.item(2)])
+        self.coordinates = new_coords
+        print("coords", self.coordinates)
 
     def apply_normalization(self, normalization_matrix):
         self.normalized_coordinates = []
         for x in self.coordinates:
+            x = [x[0], x[1], x[2], 1]
             point = np.matrix(x)
             new_point = np.matmul(point, normalization_matrix)
             self.normalized_coordinates.append([new_point.item(0), new_point.item(1), new_point.item(2)])

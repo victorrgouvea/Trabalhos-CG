@@ -1,7 +1,7 @@
-from objects.generic_object import GenericObject
+from objects.generic3d_object import Generic3dObject
 
 
-class Wireframe(GenericObject):
+class Wireframe3D(Generic3dObject):
 
     def __init__(self, name, coordinates, color, fill):
         super().__init__(name, 'wireframe', coordinates, color, fill)

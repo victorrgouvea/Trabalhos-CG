@@ -1,7 +1,7 @@
-from objects.generic_object import GenericObject
+from objects.generic3d_object import Generic3dObject
 
 
-class Line(GenericObject):
+class Line(Generic3dObject):
 
     def __init__(self, name, coordinates, color):
         super().__init__(name, 'line', coordinates, color)

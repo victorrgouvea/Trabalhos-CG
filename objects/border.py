@@ -1,7 +1,7 @@
-from objects.generic_object import GenericObject
+from objects.generic3d_object import Generic3dObject
 
 
-class Border(GenericObject):
+class Border(Generic3dObject):
 
     def __init__(self, coords):
         super().__init__('Border', 'wireframe', coords)

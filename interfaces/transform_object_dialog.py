@@ -140,7 +140,8 @@ class TransformObjectDialog(Gtk.Dialog):
     # Show X and Y fields for the arbitrary point
     def on_arbitrary_point_selected(self, button):
         for child in self.dynamic_area.get_children():
-            if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X (arbitrary)" or child.get_placeholder_text() == "Y (arbitrary)"):
+            if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X (arbitrary)" or child.get_placeholder_text() == "Y (arbitrary)"
+                                                 or child.get_placeholder_text() == "Z (arbitrary)"):
                 self.dynamic_area.remove(child)
 
         if self.arbitrary_point_button.get_active():
@@ -148,16 +149,19 @@ class TransformObjectDialog(Gtk.Dialog):
             self.entry_x_arbitrary.set_placeholder_text("X (arbitrary)")
             self.entry_y_arbitrary = Gtk.Entry()
             self.entry_y_arbitrary.set_placeholder_text("Y (arbitrary)")
+            self.entry_z_arbitrary = Gtk.Entry()
+            self.entry_z_arbitrary.set_placeholder_text("Z (arbitrary)")
 
             self.dynamic_area.pack_start(self.entry_x_arbitrary, False, False, 0)
             self.dynamic_area.pack_start(self.entry_y_arbitrary, False, False, 0)
+            self.dynamic_area.pack_start(self.entry_z_arbitrary, False, False, 0)
 
         self.dynamic_area.show_all()
 
     # Show fields for the arbitrary axis
     def on_arbitrary_axis_selected(self, button):
         for child in self.dynamic_area.get_children():
-            if isinstance(child, Gtk.Entry) and child.get_placeholder_text() == "(x1, y1, z1), (x2, y2, z2)":
+            if isinstance(child, Gtk.Entry) and child.get_placeholder_text() == "Axis = (x1, y1, z1), (x2, y2, z2)":
                 self.dynamic_area.remove(child)
 
         if self.arbitrary_axis_button.get_active():
@@ -172,13 +176,13 @@ class TransformObjectDialog(Gtk.Dialog):
     def on_add_button_clicked(self, widget):
         transformation = None
         rotation_type = None
-        if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
-            self.pending_transformations.append(("T", float(self.entry_x.get_text()), float(self.entry_y.get_text()), self.main_window.window.angle_offset))
-            transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
+        if self.trans_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text(), self.entry_z.get_text()):
+            self.pending_transformations.append(("T", [float(self.entry_x.get_text()), float(self.entry_y.get_text()), float(self.entry_z.get_text())], self.main_window.window.angle_offset))
+            transformation = f"Translation: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}, Z = {float(self.entry_z.get_text())}"
 
-        elif self.scale_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text()):
-            self.pending_transformations.append(("S", float(self.entry_x.get_text()), float(self.entry_y.get_text())))
-            transformation = f"Scaling: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}"
+        elif self.scale_button.get_active() and self.validate_coords(self.entry_x.get_text(), self.entry_y.get_text(), self.entry_z.get_text()):
+            self.pending_transformations.append(("S", [float(self.entry_x.get_text()), float(self.entry_y.get_text()), float(self.entry_z.get_text())]))
+            transformation = f"Scaling: X = {float(self.entry_x.get_text())}, Y = {float(self.entry_y.get_text())}, Z = {float(self.entry_z.get_text())}"
 
         elif self.rotate_button.get_active() and self.validate_angle(self.angle_entry.get_text()):
 
@@ -190,12 +194,12 @@ class TransformObjectDialog(Gtk.Dialog):
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "object"))
                 rotation_type = "Around the object center"
 
-            elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text()):
-                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text())]))
-                rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}"
+            elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text(), self.entry_z.get_text()):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text()), float(self.entry_z.get_text())]))
+                rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}, Z = {float(self.entry_z.get_text())}"
 
-            elif self.arbitrary_axis_button.get_active() and self.validate_axis(self.entry_axis_arbitrary.get_text()):
-                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "axis", self.entry_axis_arbitrary.get_text()))
+            elif self.arbitrary_axis_button.get_active() and (axis_coords := self.validate_axis(self.entry_axis_arbitrary.get_text())):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "axis", axis_coords))
                 rotation_type = f"Around arbitrary axis: {self.entry_axis_arbitrary.get_text()}"
 
             if rotation_type:
@@ -223,7 +227,6 @@ class TransformObjectDialog(Gtk.Dialog):
             input_string = axis.replace("(", "").replace(")", "").replace(" ", "")
             coordinate_pairs = input_string.split(",")
             coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
-            print(coordinates)
             if len(coordinates) == 2:
                 return coordinates
         except Exception as e:
@@ -239,10 +242,11 @@ class TransformObjectDialog(Gtk.Dialog):
 
         return False
 
-    def validate_coords(self, x, y):
+    def validate_coords(self, x, y, z):
         try:
             x = float(x)
             y = float(y)
+            z = float(z)
             return True
         except ValueError:
             dialog = Gtk.MessageDialog(

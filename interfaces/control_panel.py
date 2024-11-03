@@ -138,13 +138,13 @@ class ControlPanel(Gtk.Box):
     def on_rotate_left_clicked(self, _):
         angle = self.get_angle()
         if angle is not None:
-            self.main_window.window.rotate(-angle)
+            self.main_window.window.rotate([0, 0, -angle])
             self.main_window.drawing_area.force_redraw()
 
     def on_rotate_right_clicked(self, _):
         angle = self.get_angle()
         if angle is not None:
-            self.main_window.window.rotate(angle)
+            self.main_window.window.rotate([0, 0, angle])
             self.main_window.drawing_area.force_redraw()
 
     def on_clipping_method_toggled(self, button, method):

@@ -13,7 +13,7 @@ class Window():
         self.sizey = wy
         self.scale = [2/self.sizex, 2/self.sizey, 1]
         self.center = [(self.wxmin + self.wxmax) / 2, (self.wymin + self.wymax) / 2, 0]
-        self.angle_offset = 0
+        self.angle_offset = [0, 0, 0]
         self.coordinates = [[self.wxmin, self.wymin, 0],
                             [self.wxmin, self.wymax, 0],
                             [self.wxmax, self.wymax, 0],
@@ -34,7 +34,7 @@ class Window():
 
     def change_offset(self, x, y):
         point = np.matrix([x, y, 0, 1])
-        rot_mat = create_rotation_matrix_3d([0, 0, self.angle_offset])
+        rot_mat = create_rotation_matrix_3d(self.angle_offset)
         point = np.matmul(point, rot_mat)
         translation_mat = create_translation_matrix_3d([point.item(0), point.item(1), point.item(2)])
         for x in self.coordinates:
@@ -56,14 +56,13 @@ class Window():
         self.wymax = self.coordinates[2][1]
 
     def change_zoom(self, sx, sy):
-        scale_matrix = create_scale_matrix_3d([sx, sy, 1, 1])
+        scale_matrix = create_scale_matrix_3d([sx, sy, 1])
         translation_matrix_origin = create_translation_matrix_3d([-self.center[0], -self.center[1], -self.center[2]])
         translation_matrix_return = create_translation_matrix_3d([self.center[0], self.center[1], self.center[2]])
         scale_matrix = np.matmul(translation_matrix_origin, scale_matrix)
         scale_matrix = np.matmul(scale_matrix, translation_matrix_return)
         for x in self.coordinates:
             point = np.matrix([x[0], x[1], x[2], 1])
-            print(point, scale_matrix)
             new_point = np.matmul(point, scale_matrix)
             x[0] = new_point.item(0)
             x[1] = new_point.item(1)
@@ -86,7 +85,9 @@ class Window():
 
     def update_scale(self):
         self.update_center()
-        self.scale = [2/self.sizex, 2/self.sizey]
+        self.scale = [2/self.sizex, 2/self.sizey, 1]
 
     def rotate(self, angle):
-        self.angle_offset += angle
+        self.angle_offset[0] += angle[0]
+        self.angle_offset[1] += angle[1]
+        self.angle_offset[2] += angle[2]

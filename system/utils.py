@@ -13,14 +13,6 @@ def create_rotation_matrix(angle):
                        [np.sin(angle), np.cos(angle), 0], 
                        [0, 0, 1]])
 
-def create_normalized_matrix(center, angle, scale):
-    translation_matrix = create_translation_matrix(-center[0], -center[1])
-    rotation_matrix = create_rotation_matrix(-angle)
-    scale_matrix = create_scale_matrix(scale[0], scale[1])
-    normalized_matrix = np.matmul(translation_matrix, rotation_matrix)
-    normalized_matrix = np.matmul(normalized_matrix, scale_matrix)
-    return normalized_matrix
-
 def clip_point(object_):
     clipped_lines = []
     coords = object_.normalized_coordinates
@@ -204,7 +196,6 @@ def intersection(line, intersections, condition = True):
 
     return new_line if len(new_line) == 2 else []
 
-
 def liang_barsky(line):
     p1 = -(line[1][0] - line[0][0])
     p2 = -p1
@@ -253,18 +244,13 @@ def liang_barsky(line):
     new_vector_b = [line[0][0] + p2 * min_positive, line[0][1] + p4 * min_positive]
 
     return [new_vector_a, new_vector_b]
-"""
-lines [[[1, 0.578125], [0.53125, 0.578125]], [[0.53125, 0.578125], [0.53125, 0.578125, 1]], [[0.53125, 0.578125, 1], [0.53125, 0.578125]], [[0.53125, 0.578125], [0.53125, 1]], [[0.53125, 1], [0.578125, 1]], [[0.578125, 1], [1, 0.578125]]]
-points [[1, 0.578125], [0.53125, 0.578125], [0.53125, 0.578125, 1], [0.53125, 0.578125], [0.53125, 1], [0.578125, 1]]
-([1, 0.578125), (0.53125, 0.578125), (0.53125, 1), (0.578125, 1)
-"""
 
 def create_translation_matrix_3d(direction):
     return np.matrix([[1.0, 0.0, 0.0, 0],
                         [0.0, 1.0, 0.0, 0],
                         [0.0, 0.0, 1.0, 0],
                         [direction[0], direction[1], direction[2], 1.0]])
-
+    
 def create_rotation_matrix_3d(angle, inverse: bool = False) -> np.matrix:
     sinx = sin(radians(angle[0]))
     cosx = cos(radians(angle[0]))
@@ -300,13 +286,6 @@ def create_scale_matrix_3d(scale):
                         [0.0, 0.0, scale[2], 0.0],
                         [0.0, 0.0, 0.0, 1.0]])
 
-def create_normalization_matrix_3d(window_position, window_z_rotation, window_diff_scale):
-    translation = create_scale_matrix_3d(-window_position)
-    rotation = create_rotation_matrix_3d([0.0, 0.0, window_z_rotation])
-    scaling = create_scale_matrix_3d(window_diff_scale)
-
-    return scaling @ rotation @ translation
-
 def create_projection_matrix_3d(cop, normal):
     translation = create_translation_matrix_3d(-cop)
     normal_shadow_xz = [normal[0], 0.0, normal[2]]
@@ -329,3 +308,11 @@ def create_projection_matrix_3d(cop, normal):
     rotation_y = create_rotation_matrix_3d([0.0, rotation_y, 0.0])
 
     return rotation_x @ rotation_y @ translation
+
+def create_normalized_matrix(center, angle, scale):
+    translation_matrix = create_translation_matrix_3d(center)
+    rotation_matrix = create_rotation_matrix_3d([-angle[0], -angle[1], -angle[2]])
+    scale_matrix = create_scale_matrix_3d(scale)
+    normalized_matrix = np.matmul(translation_matrix, rotation_matrix)
+    normalized_matrix = np.matmul(normalized_matrix, scale_matrix)
+    return normalized_matrix

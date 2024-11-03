@@ -1,6 +1,6 @@
 from objects.line import Line
 from objects.point import Point
-from objects.wireframe import Wireframe
+from objects.wireframe3d import Wireframe3D
 from objects.bezier_curve import BezierCurve
 from objects.spline_curve import SplineCurve
 from system.utils import clip
@@ -18,7 +18,7 @@ class DisplayFile:
         elif type == 'point':
             object = Point(name, coords, color)
         elif type == 'wireframe':
-            object = Wireframe(name, coords, color, fill)
+            object = Wireframe3D(name, coords, color, fill)
         elif type == 'bezier curve':
             object = BezierCurve(name, coords, color)
         elif type == 'spline curve':
