@@ -140,17 +140,17 @@ class TransformObjectDialog(Gtk.Dialog):
     # Show X and Y fields for the arbitrary point
     def on_arbitrary_point_selected(self, button):
         for child in self.dynamic_area.get_children():
-            if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X (arbitrary)" or child.get_placeholder_text() == "Y (arbitrary)"
-                                                 or child.get_placeholder_text() == "Z (arbitrary)"):
+            if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X" or child.get_placeholder_text() == "Y"
+                                                 or child.get_placeholder_text() == "Z"):
                 self.dynamic_area.remove(child)
 
         if self.arbitrary_point_button.get_active():
             self.entry_x_arbitrary = Gtk.Entry()
-            self.entry_x_arbitrary.set_placeholder_text("X (arbitrary)")
+            self.entry_x_arbitrary.set_placeholder_text("X")
             self.entry_y_arbitrary = Gtk.Entry()
-            self.entry_y_arbitrary.set_placeholder_text("Y (arbitrary)")
+            self.entry_y_arbitrary.set_placeholder_text("Y")
             self.entry_z_arbitrary = Gtk.Entry()
-            self.entry_z_arbitrary.set_placeholder_text("Z (arbitrary)")
+            self.entry_z_arbitrary.set_placeholder_text("Z")
 
             self.dynamic_area.pack_start(self.entry_x_arbitrary, False, False, 0)
             self.dynamic_area.pack_start(self.entry_y_arbitrary, False, False, 0)
@@ -161,14 +161,21 @@ class TransformObjectDialog(Gtk.Dialog):
     # Show fields for the arbitrary axis
     def on_arbitrary_axis_selected(self, button):
         for child in self.dynamic_area.get_children():
-            if isinstance(child, Gtk.Entry) and child.get_placeholder_text() == "Axis = (x1, y1, z1), (x2, y2, z2)":
+            if isinstance(child, Gtk.Entry) and (child.get_placeholder_text() == "X" or child.get_placeholder_text() == "Y"
+                                             or child.get_placeholder_text() == "Z"):
                 self.dynamic_area.remove(child)
 
-        if self.arbitrary_axis_button.get_active():
-            self.entry_axis_arbitrary = Gtk.Entry()
-            self.entry_axis_arbitrary.set_placeholder_text("Axis = (x1, y1, z1), (x2, y2, z2)")
+        if self.arbitrary_axis_button.get_active():  # Corrigido aqui
+            self.entry_x_arbitrary = Gtk.Entry()
+            self.entry_x_arbitrary.set_placeholder_text("X")
+            self.entry_y_arbitrary = Gtk.Entry()
+            self.entry_y_arbitrary.set_placeholder_text("Y")
+            self.entry_z_arbitrary = Gtk.Entry()
+            self.entry_z_arbitrary.set_placeholder_text("Z")
 
-            self.dynamic_area.pack_start(self.entry_axis_arbitrary, False, False, 0)
+            self.dynamic_area.pack_start(self.entry_x_arbitrary, False, False, 0)
+            self.dynamic_area.pack_start(self.entry_y_arbitrary, False, False, 0)
+            self.dynamic_area.pack_start(self.entry_z_arbitrary, False, False, 0)
 
         self.dynamic_area.show_all()
 
@@ -194,13 +201,13 @@ class TransformObjectDialog(Gtk.Dialog):
                 self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "object"))
                 rotation_type = "Around the object center"
 
-            elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text(), self.entry_z.get_text()):
-                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text()), float(self.entry_z.get_text())]))
-                rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}, Z = {float(self.entry_z.get_text())}"
+            elif self.arbitrary_point_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text(), self.entry_z_arbitrary.get_text()):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "arbitrary", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text()), float(self.entry_z_arbitrary.get_text())]))
+                rotation_type = f"Around arbitrary point: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}, Z = {float(self.entry_z_arbitrary.get_text())}"
 
-            elif self.arbitrary_axis_button.get_active() and (axis_coords := self.validate_axis(self.entry_axis_arbitrary.get_text())):
-                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "axis", axis_coords))
-                rotation_type = f"Around arbitrary axis: {self.entry_axis_arbitrary.get_text()}"
+            elif self.arbitrary_axis_button.get_active() and self.validate_coords(self.entry_x_arbitrary.get_text(), self.entry_y_arbitrary.get_text(), self.entry_z_arbitrary.get_text()):
+                self.pending_transformations.append(("R", float(self.angle_entry.get_text()), "axis", [float(self.entry_x_arbitrary.get_text()), float(self.entry_y_arbitrary.get_text()), float(self.entry_z_arbitrary.get_text())]))
+                rotation_type = f"Around arbitrary axis: X = {float(self.entry_x_arbitrary.get_text())}, Y = {float(self.entry_y_arbitrary.get_text())}, Z = {float(self.entry_z_arbitrary.get_text())}"
 
             if rotation_type:
                 transformation = f"Rotation ({rotation_type}): Angle = {float(self.angle_entry.get_text())}"

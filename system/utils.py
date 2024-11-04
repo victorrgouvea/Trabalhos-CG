@@ -287,7 +287,7 @@ def create_scale_matrix_3d(scale):
                         [0.0, 0.0, 0.0, 1.0]])
 
 def create_projection_matrix_3d(cop, normal):
-    translation = create_translation_matrix_3d(-cop)
+    translation = create_translation_matrix_3d([-cop[0], -cop[1], -cop[2]])
     normal_shadow_xz = [normal[0], 0.0, normal[2]]
 
     rotation_y = degrees(np.matmul([0.0, 0.0, 1.0], normal_shadow_xz))
@@ -296,12 +296,12 @@ def create_projection_matrix_3d(cop, normal):
         rotation_y = 360 - rotation_y
 
     normal_rotation_matrix = create_rotation_matrix_3d([0.0, rotation_y, 0.0])
-    new_normal = np.matmul(normal_rotation_matrix, normal.internal_vector_4d)
+    new_normal = np.matmul(normal_rotation_matrix, [normal[0], normal[1], normal[2], 1])
     normal = [new_normal[0, 0], new_normal[0, 1], new_normal[0, 2]]
 
     rotation_x = degrees(np.matmul([0.0, 0.0, 1.0], normal))
 
-    if normal.y < 0.0:
+    if normal[2] < 0.0:
         rotation_x = 360 - rotation_x
 
     rotation_x = create_rotation_matrix_3d([rotation_x, 0.0, 0.0])
@@ -309,10 +309,36 @@ def create_projection_matrix_3d(cop, normal):
 
     return rotation_x @ rotation_y @ translation
 
-def create_normalized_matrix(center, angle, scale):
+def create_normalized_matrix(center, angle, scale, cop = 0, normal = (0,0,0), ignore_projection = False):
     translation_matrix = create_translation_matrix_3d(center)
     rotation_matrix = create_rotation_matrix_3d([-angle[0], -angle[1], -angle[2]])
     scale_matrix = create_scale_matrix_3d(scale)
     normalized_matrix = np.matmul(translation_matrix, rotation_matrix)
     normalized_matrix = np.matmul(normalized_matrix, scale_matrix)
+    if (not ignore_projection):
+        normalized_matrix = np.matmul(create_projection_matrix_3d(cop, normal), normalized_matrix)
     return normalized_matrix
+
+def angle_between_vectors(vector1, vector2):
+        a =  np.inner(vector1, vector2)
+        b = np.linalg.norm(vector1) * np.linalg.norm(vector2)
+        return np.arccos(a / b)
+
+def get_axis_rotation(point, rotation_angle, axis):
+        x = point[0]
+        y = point[1]
+        z = point[2]
+
+        x_axis = np.matrix([1, 0, 0])
+        x_angle = angle_between_vectors(x_axis, axis)
+        z_axis = np.matrix([0, 0, 1])
+        z_angle = angle_between_vectors(z_axis, axis)
+
+        trans = create_translation_matrix_3d([-x, -y, -z])
+        rotation_xz = create_rotation_matrix_3d ([x_angle, 0, z_angle], True)
+        rotation = create_rotation_matrix_3d([0, rotation_angle, 0])
+
+        reverse_rot_xy = create_rotation_matrix_3d([-x_angle, 0, -z_angle], False)
+        reverse_trans = create_translation_matrix_3d([x, y, z])
+
+        return trans @ rotation_xz @ rotation @ reverse_rot_xy @ reverse_trans

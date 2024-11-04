@@ -6,7 +6,6 @@ class Border(Generic3dObject):
     def __init__(self, coords):
         super().__init__('Border', 'wireframe', coords)
 
-
     def draw(self, context, viewport_function):
         context.set_source_rgb(self.color[0], self.color[1], self.color[2])
 

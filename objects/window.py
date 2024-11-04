@@ -22,12 +22,13 @@ class Window():
         self.rotation_x = 0
         self.rotation_y = 0
         self.rotation_z = 0
+        self.cop = (0, 0, 500)
 
     def calculate_x_axis(self):
-        return np.subtract(self.coords[2], self.coords[1])
+        return np.subtract(self.coordinates[2], self.coordinates[1])
 
     def calculate_y_vector(self):
-        return np.subtract(self.coords[1] - self.coords[0])
+        return np.subtract(self.coordinates[1], self.coordinates[0])
 
     def calculate_z_vector(self):
         return np.cross((self.calculate_x_axis() / 2.0), (self.calculate_y_vector() / 2.0))
@@ -46,8 +47,8 @@ class Window():
         self.update_min_max()
         self.update_center()
 
-    def get_normalized_matrix(self):
-        return create_normalized_matrix(self.center, self.angle_offset, self.scale)
+    def get_normalized_matrix(self, IgnoreProjec=False):
+        return create_normalized_matrix(self.center, self.angle_offset, self.scale, self.cop, self.calculate_z_vector(), IgnoreProjec)
 
     def update_min_max(self):
         self.wxmin = self.coordinates[0][0]
@@ -57,8 +58,8 @@ class Window():
 
     def change_zoom(self, sx, sy):
         scale_matrix = create_scale_matrix_3d([sx, sy, 1])
-        translation_matrix_origin = create_translation_matrix_3d([-self.center[0], -self.center[1], -self.center[2]])
-        translation_matrix_return = create_translation_matrix_3d([self.center[0], self.center[1], self.center[2]])
+        translation_matrix_origin = create_translation_matrix_3d([self.center[0], self.center[1], self.center[2]])
+        translation_matrix_return = create_translation_matrix_3d([-self.center[0], -self.center[1], -self.center[2]])
         scale_matrix = np.matmul(translation_matrix_origin, scale_matrix)
         scale_matrix = np.matmul(scale_matrix, translation_matrix_return)
         for x in self.coordinates:
