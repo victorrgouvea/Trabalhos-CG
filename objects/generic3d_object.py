@@ -56,7 +56,7 @@ class Generic3dObject(ABC):
 
     def rotate(self, angle, center, rot_type):
         if rot_type == "axis":
-            rotation_matrix = get_axis_rotation(self.coordinates[0], angle, center)
+            rotation_matrix = get_axis_rotation(self.center, angle, center)
         else:
             rotation_matrix = create_rotation_matrix_3d([0, 0, angle])
             translation_matrix_origin = create_translation_matrix_3d([-center[0], -center[1], -center[2]])

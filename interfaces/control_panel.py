@@ -19,23 +19,17 @@ class ControlPanel(Gtk.Box):
         self.down_button = Gtk.Button(label="Down")
         self.left_button = Gtk.Button(label="Left")
         self.right_button = Gtk.Button(label="Right")
-        self.inward_left_button = Gtk.Button(label="Inward Left")
-        self.inward_right_button = Gtk.Button(label="Inward Right")
 
         self.up_button.connect("clicked", self.on_up_clicked)
         self.down_button.connect("clicked", self.on_down_clicked)
         self.left_button.connect("clicked", self.on_left_clicked)
         self.right_button.connect("clicked", self.on_right_clicked)
-        self.inward_left_button.connect("clicked", self.on_inward_left_clicked)
-        self.inward_right_button.connect("clicked", self.on_inward_right_clicked)
 
         # Adicionar os botões no grid
         move_grid.attach(self.up_button, 1, 0, 1, 1)     # Botão "Up" no centro superior
         move_grid.attach(self.left_button, 0, 1, 1, 1)   # Botão "Left" no centro esquerdo
         move_grid.attach(self.right_button, 2, 1, 1, 1)  # Botão "Right" no centro direito
         move_grid.attach(self.down_button, 1, 2, 1, 1)   # Botão "Down" no centro inferior
-        move_grid.attach(self.inward_left_button, 0, 4, 1, 1)   # Botão "Inward Left"
-        move_grid.attach(self.inward_right_button, 2, 4, 1, 1)  # Botão "Inward Right"
 
 
         align_grid = Gtk.Alignment.new(0.5, 0, 0, 0)
@@ -43,6 +37,35 @@ class ControlPanel(Gtk.Box):
 
         # Adicionar o grid ao layout principal
         self.pack_start(align_grid, True, True, 0)
+
+        self.panning_label = Gtk.Label()
+        self.panning_label.set_markup("<b>Navigation</b>")
+        self.pack_start(self.panning_label, False, False, 0)
+
+        move_grid2 = Gtk.Grid()
+        move_grid2.set_row_spacing(10)
+        move_grid2.set_column_spacing(5)
+
+        # Navigation buttons
+        self.front_button = Gtk.Button(label="Front")
+        self.back_button = Gtk.Button(label="Back")
+        self.inward_left_button = Gtk.Button(label="Inward Left")
+        self.inward_right_button = Gtk.Button(label="Inward Right")
+
+        self.front_button.connect("clicked", self.on_front_clicked)
+        self.back_button.connect("clicked", self.on_back_clicked)
+        self.inward_left_button.connect("clicked", self.on_inward_left_clicked)
+        self.inward_right_button.connect("clicked", self.on_inward_right_clicked)
+
+        move_grid2.attach(self.front_button, 1, 3, 1, 1)  # Botão "Front"
+        move_grid2.attach(self.back_button, 1, 5, 1, 1)   # Botão "Back"
+        move_grid2.attach(self.inward_left_button, 0, 4, 1, 1)   # Botão "Inward Left"
+        move_grid2.attach(self.inward_right_button, 2, 4, 1, 1)  # Botão "Inward Right"
+
+        align_grid2 = Gtk.Alignment.new(0.5, 0, 0, 0)
+        align_grid2.add(move_grid2)
+
+        self.pack_start(align_grid2, True, True, 0)
 
         self.rotation_label = Gtk.Label()
         self.rotation_label.set_markup("<b>Rotation</b>")
@@ -122,9 +145,21 @@ class ControlPanel(Gtk.Box):
         self.main_window.drawing_area.force_redraw()
 
     def on_inward_left_clicked(self, _):
-        pass
+        self.main_window.window.rotate_axis_y(15)
+        self.main_window.drawing_area.force_redraw()
 
     def on_inward_right_clicked(self, _):
+        self.main_window.window.rotate_axis_y(-15)
+        self.main_window.drawing_area.force_redraw()
+
+    def on_front_clicked(self, _):
+        # self.main_window.window.change_offset(0, 0)
+        # self.main_window.drawing_area.force_redraw()
+        pass
+    
+    def on_back_clicked(self, _):
+        # self.main_window.window.change_offset(0, 0)
+        # self.main_window.drawing_area.force_redraw()
         pass
 
     def on_zoom_out_clicked(self, _):

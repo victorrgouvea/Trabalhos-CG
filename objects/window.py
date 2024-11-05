@@ -1,5 +1,5 @@
 import numpy as np
-from system.utils import create_normalized_matrix, create_rotation_matrix_3d, create_translation_matrix_3d, create_scale_matrix_3d, create_rotation_matrix
+from system.utils import create_normalized_matrix, create_rotation_matrix_3d, create_translation_matrix_3d, create_scale_matrix_3d, create_rotation_matrix, angle_between_vectors
 from objects.border import Border
 
 class Window():
@@ -22,7 +22,7 @@ class Window():
         self.rotation_x = 0
         self.rotation_y = 0
         self.rotation_z = 0
-        self.cop = [0, 0, -500]
+        self.cop = [0, 0, 50]
 
     def calculate_x_axis(self):
         return np.subtract(self.coordinates[2], self.coordinates[1])
@@ -78,3 +78,6 @@ class Window():
         self.angle_offset[0] += angle[0]
         self.angle_offset[1] += angle[1]
         self.angle_offset[2] += angle[2]
+
+    def rotate_axis_y(self, rotation_angle):
+        self.angle_offset[1] += rotation_angle

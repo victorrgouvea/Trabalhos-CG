@@ -320,9 +320,9 @@ def create_normalized_matrix(center, angle, scale, cop = 0, normal = (0,0,0), ig
     return normalized_matrix
 
 def angle_between_vectors(vector1, vector2):
-        a =  np.inner(vector1, vector2)
+        a =  np.dot(vector1, vector2)
         b = np.linalg.norm(vector1) * np.linalg.norm(vector2)
-        return np.arccos(a / b)
+        return np.degrees(np.arccos(a / b))
 
 def get_axis_rotation(point, rotation_angle, axis):
         x = point[0]
@@ -333,12 +333,12 @@ def get_axis_rotation(point, rotation_angle, axis):
         x_angle = angle_between_vectors(x_axis, axis)
         z_axis = np.matrix([0, 0, 1])
         z_angle = angle_between_vectors(z_axis, axis)
-
         trans = create_translation_matrix_3d([-x, -y, -z])
-        rotation_xz = create_rotation_matrix_3d ([x_angle, 0, z_angle], True)
+        rot_x = create_rotation_matrix_3d([-x_angle, 0, 0])
+        rot_z = create_rotation_matrix_3d([0, 0, -z_angle])
         rotation = create_rotation_matrix_3d([0, rotation_angle, 0])
+        rev_rot_x = create_rotation_matrix_3d([x_angle, 0, 0])
+        rev_rot_z = create_rotation_matrix_3d([0, 0, z_angle])
+        reverse_trans = create_translation_matrix_3d(point)
 
-        reverse_rot_xy = create_rotation_matrix_3d([-x_angle, 0, -z_angle], False)
-        reverse_trans = create_translation_matrix_3d([x, y, z])
-
-        return trans @ rotation_xz @ rotation @ reverse_rot_xy @ reverse_trans
+        return trans @ rot_x @ rot_z @ rotation @ rev_rot_z @ rev_rot_x @ reverse_trans
