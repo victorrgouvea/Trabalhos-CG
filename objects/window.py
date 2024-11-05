@@ -22,7 +22,7 @@ class Window():
         self.rotation_x = 0
         self.rotation_y = 0
         self.rotation_z = 0
-        self.cop = (0, 0, 500)
+        self.cop = [0, 0, -500]
 
     def calculate_x_axis(self):
         return np.subtract(self.coordinates[2], self.coordinates[1])
@@ -57,18 +57,8 @@ class Window():
         self.wymax = self.coordinates[2][1]
 
     def change_zoom(self, sx, sy):
-        scale_matrix = create_scale_matrix_3d([sx, sy, 1])
-        translation_matrix_origin = create_translation_matrix_3d([self.center[0], self.center[1], self.center[2]])
-        translation_matrix_return = create_translation_matrix_3d([-self.center[0], -self.center[1], -self.center[2]])
-        scale_matrix = np.matmul(translation_matrix_origin, scale_matrix)
-        scale_matrix = np.matmul(scale_matrix, translation_matrix_return)
-        for x in self.coordinates:
-            point = np.matrix([x[0], x[1], x[2], 1])
-            new_point = np.matmul(point, scale_matrix)
-            x[0] = new_point.item(0)
-            x[1] = new_point.item(1)
-        self.update_min_max()
-        self.update_scale()
+        self.scale[0] = self.scale[0] * sx
+        self.scale[1] = self.scale[1] * sy
 
     def update_center(self):
         self.update_sizes()
@@ -83,10 +73,6 @@ class Window():
     def update_sizes(self):
         self.sizex = self.wxmax - self.wxmin
         self.sizey = self.wymax - self.wymin
-
-    def update_scale(self):
-        self.update_center()
-        self.scale = [2/self.sizex, 2/self.sizey, 1]
 
     def rotate(self, angle):
         self.angle_offset[0] += angle[0]
