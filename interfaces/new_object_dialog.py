@@ -26,12 +26,16 @@ class NewObjectDialog(Gtk.Dialog):
         wireframe_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Wireframe")
         bezier_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Bezier Curve")
         spline_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Spline Curve")
+        bezier_surface_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Bezier Surface")
+        spline_surface_button = Gtk.RadioButton.new_with_label_from_widget(point_button, "Spline Surface")
 
         point_button.connect("toggled", self.on_button_toggled, "Point")
         line_button.connect("toggled", self.on_button_toggled, "Line")
         wireframe_button.connect("toggled", self.on_button_toggled, "Wireframe")
         bezier_button.connect("toggled", self.on_button_toggled, "Bezier Curve")
         spline_button.connect("toggled", self.on_button_toggled, "Spline Curve")
+        bezier_surface_button.connect("toggled", self.on_button_toggled, "Bezier Surface")
+        spline_surface_button.connect("toggled", self.on_button_toggled, "Spline Surface")
 
         # Checkboxes for type of object
         radio_box.pack_start(point_button, True, True, 0)
@@ -39,6 +43,8 @@ class NewObjectDialog(Gtk.Dialog):
         radio_box.pack_start(wireframe_button, True, True, 0)
         radio_box.pack_start(bezier_button, True, True, 0)
         radio_box.pack_start(spline_button, True, True, 0)
+        radio_box.pack_start(bezier_surface_button, True, True, 0)
+        radio_box.pack_start(spline_surface_button, True, True, 0)
 
         box.add(radio_box)
 
@@ -97,20 +103,37 @@ class NewObjectDialog(Gtk.Dialog):
             
             rgba = self.color_button.get_rgba()
             color = (rgba.red, rgba.green, rgba.blue) 
+            
+            if self.selected_type in ["Bezier Surface", "Spline Surface"]:
+                try:
+                    input_string = self.coordinates_entry.get_text().split(";")
+                    coordinates = []
+                    for str in input_string:
+                        replaced_string = str.replace("(", "").replace(")", "").replace(" ", "")
+                        coordinate_pairs = replaced_string.split(",")
+                        row = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
+                        coordinates.append(row)
+                except Exception as e:
+                    print(e)
+                    return self.show_error_dialog("Invalid input format for coordinates")
+            
+                # print(coordinates)
+                
+                
+            else:
+                try:
+                    input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
+                    coordinate_pairs = input_string.split(",")
+                    coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
+                except Exception as e:
+                    print(e)
+                    return self.show_error_dialog("Invalid input format for coordinates")
 
-            try:
-                input_string = self.coordinates_entry.get_text().replace("(", "").replace(")", "").replace(" ", "")
-                coordinate_pairs = input_string.split(",")
-                coordinates = [(float(coordinate_pairs[i]), float(coordinate_pairs[i + 1]), float(coordinate_pairs[i + 2])) for i in range(0, len(coordinate_pairs), 3)]
-            except Exception as e:
-                print(e)
-                return self.show_error_dialog("Invalid input format for coordinates")
-
-            # Only accepts when all curves are completed
-            if ((self.selected_type == "Bezier Curve" or self.selected_type == "Spline Curve") and 
-                not (len(coordinates) == 4 or (len(coordinates) > 4 and len(coordinates) % 4 == 3))):
-
-                return self.show_error_dialog("Invalid number of points for Bezier Curve")
+                # Only accepts when all curves are completed
+                if ((self.selected_type == "Bezier Curve" or self.selected_type == "Spline Curve") and 
+                    not (len(coordinates) == 4 or (len(coordinates) > 4 and len(coordinates) % 4 == 3))):
+    
+                    return self.show_error_dialog("Invalid number of points for Bezier Curve")
 
             # Fill wireframe if selected
             if self.selected_type == "Wireframe" and self.fill_wireframe:
