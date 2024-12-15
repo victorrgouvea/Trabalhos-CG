@@ -76,7 +76,7 @@ class FileSystem():
                         name = data[1]
                     case 'v':
                         if len(data) >= 3:
-                            points.append((float(data[1]), float(data[2])))
+                            points.append((float(data[1]), float(data[2]), float(data[3])))
 
         # Adiciona o último objeto se ele não tiver sido adicionado
         if name or points:

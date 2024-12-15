@@ -3,6 +3,8 @@ from objects.point import Point
 from objects.wireframe3d import Wireframe3D
 from objects.bezier_curve import BezierCurve
 from objects.spline_curve import SplineCurve
+from objects.bezierSurface import BezierSurface
+from objects.bsplineSurface import BSplineSurface
 from system.utils import clip
 
 class DisplayFile:
@@ -23,6 +25,10 @@ class DisplayFile:
             object = BezierCurve(name, coords, color)
         elif type == 'spline curve':
             object = SplineCurve(name, coords, color)
+        elif type == 'bezier surface':
+            object = BezierSurface(name, coords, color)
+        elif type == 'bspline surface':
+            object = BSplineSurface(name, coords, color)
 
         self.objects.append(object)
 
