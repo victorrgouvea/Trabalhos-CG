@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from system.utils import create_translation_matrix_3d, create_scale_matrix_3d, create_rotation_matrix_3d, get_axis_rotation
+from system.utils import create_translation_matrix_3d, create_scale_matrix_3d, create_rotation_matrix_3d, get_axis_rotation, normalize_homogeneous_coordinates
 class Generic3dObject(ABC):
 
     def __init__(self, name, type, coordinates, color = (0, 0, 0), fill = False):
@@ -10,11 +10,16 @@ class Generic3dObject(ABC):
         self.normalized_coordinates = []
         self.clipped_coords = []
         self.fill = fill
+        self.is3d = False
+        lastUsedCoord = coordinates[0]
         for x in coordinates:
             if (len(x) == 2):
                 self.coordinates.append([x[0], x[1], 0])
             else:
                 self.coordinates.append([x[0], x[1], x[2]])
+
+            if ((len(x) == 3) and (lastUsedCoord[2] != x[2])):
+                self.is3d = True
         self.color = color
         self.center = self.get_center()
         self.clipped_lines = []
@@ -100,4 +105,6 @@ class Generic3dObject(ABC):
             x = [x[0], x[1], x[2], 1]
             point = np.matrix(x)
             new_point = np.matmul(point, normalization_matrix)
-            self.normalized_coordinates.append([new_point.item(0), new_point.item(1), new_point.item(2)])
+            new_point = normalize_homogeneous_coordinates(new_point)
+            print(new_point)
+            self.normalized_coordinates.append([new_point[0], new_point[1], new_point[2]])

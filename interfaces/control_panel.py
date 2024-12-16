@@ -47,18 +47,12 @@ class ControlPanel(Gtk.Box):
         move_grid2.set_column_spacing(5)
 
         # Navigation buttons
-        self.front_button = Gtk.Button(label="Front")
-        self.back_button = Gtk.Button(label="Back")
         self.inward_left_button = Gtk.Button(label="Inward Left")
         self.inward_right_button = Gtk.Button(label="Inward Right")
 
-        self.front_button.connect("clicked", self.on_front_clicked)
-        self.back_button.connect("clicked", self.on_back_clicked)
         self.inward_left_button.connect("clicked", self.on_inward_left_clicked)
         self.inward_right_button.connect("clicked", self.on_inward_right_clicked)
 
-        move_grid2.attach(self.front_button, 1, 3, 1, 1)  # Botão "Front"
-        move_grid2.attach(self.back_button, 1, 5, 1, 1)   # Botão "Back"
         move_grid2.attach(self.inward_left_button, 0, 4, 1, 1)   # Botão "Inward Left"
         move_grid2.attach(self.inward_right_button, 2, 4, 1, 1)  # Botão "Inward Right"
 
@@ -152,22 +146,22 @@ class ControlPanel(Gtk.Box):
         self.main_window.window.rotate_axis_y(-15)
         self.main_window.drawing_area.force_redraw()
 
-    def on_front_clicked(self, _):
-        # self.main_window.window.change_offset(0, 0)
-        # self.main_window.drawing_area.force_redraw()
-        pass
+    # def on_front_clicked(self, _):
+    #     self.main_window.window.change_offset(0, 0, 10)
+    #     self.main_window.drawing_area.force_redraw()
+        
     
-    def on_back_clicked(self, _):
-        # self.main_window.window.change_offset(0, 0)
-        # self.main_window.drawing_area.force_redraw()
-        pass
+    # def on_back_clicked(self, _):
+    #     self.main_window.window.change_offset(0, 0, -10)
+    #     self.main_window.drawing_area.force_redraw()
+
 
     def on_zoom_out_clicked(self, _):
-        self.main_window.window.change_zoom(1.05, 1.05)
+        self.main_window.window.change_zoom(0.95, 0.95)
         self.main_window.drawing_area.force_redraw()
 
     def on_zoom_in_clicked(self, _):
-        self.main_window.window.change_zoom(0.95, 0.95)
+        self.main_window.window.change_zoom(1.05, 1.05)
         self.main_window.drawing_area.force_redraw()
 
     def on_rotate_left_clicked(self, _):

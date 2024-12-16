@@ -286,6 +286,30 @@ def create_scale_matrix_3d(scale):
                         [0.0, 0.0, scale[2], 0.0],
                         [0.0, 0.0, 0.0, 1.0]])
 
+
+def build_perspective_matrix(cop_distance: float) -> np.matrix:
+    '''
+    Constrói a matriz de perspectiva.
+    '''
+    return np.matrix([[1.0, 0.0, 0.0, 0.0],
+                      [0.0, 1.0, 0.0, 0.0],
+                      [0.0, 0.0, 1.0, 0.0],
+                      [0.0, 0.0, 1.0 / cop_distance, 0.0]])
+
+def normalize_homogeneous_coordinates(point):
+    '''
+    Normaliza coordenadas homogêneas para coordenadas cartesianas.
+    '''
+    point = np.array(point).flatten()
+    if point[3] != 0:
+        return [point[0] / point[3], point[1] / point[3], point[2] / point[3]]
+    return [point[0], point[1], point[2]]  # Caso w == 0
+
+def normalize_vector(v):
+    norm = np.linalg.norm(v)
+    return v / norm if norm > 0 else v
+
+
 def create_projection_matrix_3d(cop, normal):
     translation = create_translation_matrix_3d([-cop[0], -cop[1], -cop[2]])
     normal_shadow_xz = [normal[0], 0.0, normal[2]]

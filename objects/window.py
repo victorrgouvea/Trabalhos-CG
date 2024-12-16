@@ -33,8 +33,9 @@ class Window():
     def calculate_z_vector(self):
         return np.cross((self.calculate_x_axis() / 2.0), (self.calculate_y_vector() / 2.0))
 
-    def change_offset(self, x, y):
+    def change_offset(self, x, y, z = 0):
         point = np.matrix([x, y, 0, 1])
+        self.cop = [0, 0, self.cop[2] + z]
         rot_mat = create_rotation_matrix_3d(self.angle_offset)
         point = np.matmul(point, rot_mat)
         translation_mat = create_translation_matrix_3d([point.item(0), point.item(1), point.item(2)])

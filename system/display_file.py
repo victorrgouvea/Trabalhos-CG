@@ -3,8 +3,6 @@ from objects.point import Point
 from objects.wireframe3d import Wireframe3D
 from objects.bezier_curve import BezierCurve
 from objects.spline_curve import SplineCurve
-from objects.bezierSurface import BezierSurface
-from objects.bsplineSurface import BSplineSurface
 from system.utils import clip
 
 class DisplayFile:
@@ -25,10 +23,6 @@ class DisplayFile:
             object = BezierCurve(name, coords, color)
         elif type == 'spline curve':
             object = SplineCurve(name, coords, color)
-        elif type == 'bezier surface':
-            object = BezierSurface(name, coords, color)
-        elif type == 'bspline surface':
-            object = BSplineSurface(name, coords, color)
 
         self.objects.append(object)
 
@@ -39,9 +33,14 @@ class DisplayFile:
         norm_matrix = self.window.get_normalized_matrix()
         border_norm_matrix = self.window.get_normalized_matrix(True)
         for objects in self.objects:
-             objects.apply_normalization(norm_matrix)
-             clip(objects, self.clip_algorithm)
-             if objects.clipped_coords or objects.clipped_lines:
+             
+            if objects.is3d:
+                objects.apply_normalization(norm_matrix)
+            else:
+                objects.apply_normalization(border_norm_matrix)
+
+            clip(objects, self.clip_algorithm)
+            if objects.clipped_coords or objects.clipped_lines:
                 objects.draw(context, self.view_port.transform)
 
         if self.window.border.normalized_coordinates == []:
